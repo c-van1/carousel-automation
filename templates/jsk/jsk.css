@@ -48,7 +48,7 @@
   --jsk-product-h: 320px;
 }
 
-html, body { margin: 0; padding: 0; background: #e9e9e5; }
+html, body { margin: 0; padding: 0; background: #e9e9e5; } /* allow-hardcoded: 畫布外的預覽底色,不入圖 */
 * { box-sizing: border-box; }
 
 .jsk-frame {
@@ -214,7 +214,6 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; }
   background: var(--color-primary);
 }
 .jsk-band-l { font-weight: 700; }
-.jsk-band-r { opacity: 0.9; }
 
 .jsk-s-band .jsk-content {
   top: calc(var(--jsk-safe-top) + var(--jsk-band-h) + 72px);
@@ -338,7 +337,7 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; }
 .jsk-shelf-img { height: var(--jsk-shelf-h); width: 100%; display: flex; align-items: flex-end; justify-content: center; }
 .jsk-shelf-img img { max-width: 92%; max-height: 100%; object-fit: contain; }
 .jsk-shelf-name { margin: 20px 0 0; font-size: var(--social-caption); color: var(--color-text-muted); text-align: center; }
-.jsk-s-green .jsk-shelf-name { color: var(--social-ink-dim); }
+.jsk-s-green .jsk-shelf-name { color: var(--social-ink); }
 .jsk-shelf-name span { margin-right: 10px; }
 .jsk-join {
   flex: none; width: 64px; display: flex; align-items: center; justify-content: center;

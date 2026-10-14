@@ -14,7 +14,7 @@
 
 import { chromium } from 'playwright';
 import nunjucks from 'nunjucks';
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'fs';
 import { dirname, join, resolve, isAbsolute } from 'path';
 import { homedir } from 'os';
 import { pathToFileURL } from 'url';
@@ -250,9 +250,108 @@ async function fitPages(page) {
   });
 }
 
+/**
+ * 活動套件:內容 JSON 的 "kit" 指向一份共用設定(series、bandRight、style、promo、prices、currency、size),
+ * 同一活動的 Post、Story 共用。內容 JSON 自己寫的欄位優先;prices 路徑以 kit 檔所在資料夾為準。
+ */
+function applyKit(content, contentDir) {
+  if (!content.kit) return content;
+  const abs = isAbsolute(content.kit) ? content.kit : resolve(contentDir, content.kit);
+  if (!existsSync(abs)) throw new Error(`找不到活動套件 ${content.kit}`);
+  const kit = JSON.parse(readFileSync(abs, 'utf-8'));
+  if (kit.prices && !isAbsolute(kit.prices)) kit.prices = resolve(dirname(abs), kit.prices);
+  const allowed = ['series', 'bandRight', 'style', 'promo', 'prices', 'currency', 'size', 'pageNumbers'];
+  const unknown = Object.keys(kit).filter((k) => !allowed.includes(k) && k !== 'name');
+  if (unknown.length) throw new Error(`活動套件有未知欄位:${unknown.join('、')}(可用:${allowed.join('、')})`);
+  const merged = { ...content };
+  for (const k of allowed) if (merged[k] === undefined && kit[k] !== undefined) merged[k] = kit[k];
+  merged.kitName = kit.name || content.kit;
+  return merged;
+}
+
+/** 靜態檢查:樣式表與模板不可寫死色碼(要用設計系統 token);標 allow-hardcoded 的行除外。 */
+function lintHardcodedColors() {
+  const root = resolve(dirname(new URL(import.meta.url).pathname), '..', 'templates', 'jsk');
+  const files = [join(root, 'jsk.css'), ...readdirSync(join(root, 'slides')).map((f) => join(root, 'slides', f)), join(root, 'deck.html')];
+  const hits = [];
+  for (const f of files) {
+    readFileSync(f, 'utf-8').split('\n').forEach((line, i) => {
+      if (line.includes('allow-hardcoded')) return;
+      if (/#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(/.test(line.replace(/\/\*.*?\*\//g, ''))) {
+        hits.push(`${f.slice(root.length + 1)}:${i + 1}`);
+      }
+    });
+  }
+  return hits;
+}
+
+/**
+ * 出圖後檢查每頁:字級小於設計系統最小字級(--social-caption,24px)、文字與底色對比不足。
+ * 顏色一律經 canvas 轉成 sRGB(oklch 等新寫法也適用);底色由祖先逐層疊合。
+ * 文字下面是相片時無法自動判斷,列入 unchecked,不當作通過。
+ */
+async function checkPages(page) {
+  return page.evaluate(() => {
+    const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+    const rgba = (c) => {
+      ctx.clearRect(0, 0, 1, 1); ctx.fillStyle = '#000'; ctx.fillStyle = c; ctx.fillRect(0, 0, 1, 1);
+      const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data; return [r, g, b, a / 255];
+    };
+    const over = (top, under) => top.slice(0, 3).map((v, i) => v * top[3] + under[i] * (1 - top[3])).concat(1);
+    const lum = ([r, g, b]) => {
+      const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+      return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+    };
+    const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+    const minPx = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--social-caption')) || 24;
+
+    /* 由畫布到元素逐層疊合背景;遇到相片(img 滿版)就回傳 null */
+    const bgOf = (el, frame) => {
+      const chain = [];
+      for (let n = el; n && n !== frame.parentElement; n = n.parentElement) chain.unshift(n);
+      let bg = [255, 255, 255, 1];
+      let photo = false;
+      for (const n of chain) {
+        if (n.matches('[data-contrast-bg]')) { bg = over(rgba(getComputedStyle(n).color), bg); photo = false; continue; }
+        const c = rgba(getComputedStyle(n).backgroundColor);
+        if (c[3] > 0) { bg = over(c, bg); if (c[3] >= 0.9) photo = false; }
+        /* 畫布本身的底色在相片下面,所以先疊底色,再標記相片 */
+        if (n === frame && frame.querySelector(':scope > img.jsk-qa-photo, :scope > .jsk-cover-photo')) photo = true;
+      }
+      return photo ? null : bg;
+    };
+
+    return [...document.querySelectorAll('.jsk-frame')].map((frame, i) => {
+      const small = []; const low = []; let unchecked = 0;
+      const walker = document.createTreeWalker(frame, NodeFilter.SHOW_TEXT);
+      const seen = new Set();
+      for (let t = walker.nextNode(); t; t = walker.nextNode()) {
+        const el = t.parentElement;
+        if (!t.textContent.trim() || seen.has(el) || el.closest('svg')) continue;
+        seen.add(el);
+        const cs = getComputedStyle(el);
+        if (cs.visibility === 'hidden' || cs.display === 'none' || !el.getClientRects().length) continue;
+        const px = parseFloat(cs.fontSize);
+        const text = t.textContent.trim().slice(0, 12);
+        if (px < minPx - 0.5) small.push(`「${text}」${px}px`);
+        const bg = bgOf(el, frame);
+        if (!bg) { unchecked++; continue; }
+        const fg = over(rgba(cs.color), bg);
+        const r = ratio(fg, bg);
+        const bold = parseInt(cs.fontWeight, 10) >= 700;
+        const large = px >= 24 || (bold && px >= 18.67); /* WCAG 大字:18pt(24px),粗體 14pt(18.67px) */
+        const need = large ? 3 : 4.5;
+        if (r < need) low.push(`「${text}」對比 ${r.toFixed(2)}:1(需 ${need}:1)`);
+      }
+      return { page: i + 1, small, low, unchecked };
+    });
+  });
+}
+
 export async function renderJsk(content, { contentPath, outputDir, imageFormat = 'png', noPdf = false }) {
   const warnings = [];
   const dsDir = findDesignSystem();
+  content = applyKit(content, dirname(contentPath));
   prepareSlides(content, dirname(contentPath), warnings);
 
   mkdirSync(outputDir, { recursive: true });
@@ -279,6 +378,13 @@ export async function renderJsk(content, { contentPath, outputDir, imageFormat =
     if (f.status === 'overflow') warnings.push(`第 ${f.page} 頁:超出版面 ${f.overPx}px`
       + (f.fontPx < f.fromPx ? `(正文已縮至下限 ${f.fontPx}px)` : '') + ',請刪字、減少產品或分頁');
   }
+  const checks = { hardcodedColors: lintHardcodedColors(), pages: await checkPages(page) };
+  if (checks.hardcodedColors.length) warnings.push(`樣式寫死色碼(應改用設計系統 token):${checks.hardcodedColors.join('、')}`);
+  for (const c of checks.pages) {
+    if (c.small.length) warnings.push(`第 ${c.page} 頁:字太小(下限 24px):${c.small.join('、')}`);
+    if (c.low.length) warnings.push(`第 ${c.page} 頁:對比不足:${c.low.join('、')}`);
+    if (c.unchecked) warnings.push(`第 ${c.page} 頁:${c.unchecked} 段文字在相片上,對比未能自動檢查,請目測`);
+  }
 
   const ext = imageFormat === 'jpeg' ? 'jpg' : 'png';
   const frames = page.locator('.jsk-frame');
@@ -301,7 +407,7 @@ export async function renderJsk(content, { contentPath, outputDir, imageFormat =
   }
   await browser.close();
 
-  const report = { designSystem: dsDir, size: `${W}x${H}`, pages: count, files, warnings, ok: !fit.some((f) => f.status === 'overflow') };
+  const report = { designSystem: dsDir, kit: content.kitName || null, size: `${W}x${H}`, checks, pages: count, files, warnings, ok: !fit.some((f) => f.status === 'overflow') };
   writeFileSync(join(outputDir, 'report.json'), JSON.stringify(report, null, 2));
   if (warnings.length) {
     console.log('\n注意:');

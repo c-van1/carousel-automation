@@ -87,3 +87,30 @@ node src/render.js path/to/deck.json --output path/to/out
 - `bundle` 組合頁:產品並排、組合價大字、原價刪線、「節省 HK$…」,全部由 sku 計出。`bundleLabel`、`saveLabel` 可改字。
 - `steps` 步驟頁:直向編號步驟,圓點以直線連起,每步可配產品小圖。
 - `qa-photo` 實拍問答頁:相片滿版,上方米白問題卡,下方半透明答案字幕;主要用 `"size": "story"`,卡片與字幕自動避開 IG 介面。不用頁首條與頁碼。
+
+## 活動套件(kit.json)
+
+同一活動的 Post、Story 共用設定,內容 JSON 寫 `"kit": "kit.json"` 即可;內容 JSON 自己寫的欄位優先。
+
+```json
+{
+  "name": "全店五折 2026-10",
+  "series": "全店五折",
+  "bandRight": "全店五折",
+  "style": "band",
+  "promo": { "discount": 0.5 },
+  "prices": "prices.json",
+  "pageNumbers": false
+}
+```
+
+可用欄位:series、bandRight、style、promo、prices、currency、size、pageNumbers(另加 name 作記錄)。
+`prices` 路徑以 kit 檔所在資料夾為準。寫錯欄位名會直接報錯。
+
+## 自動檢查(每次出圖都做,結果在 report.json 的 checks 與 warnings)
+
+- **寫死色碼**:`jsk.css` 與模板出現 `#xxxxxx`、`rgb()`、`hsl()` 即警告,要改用設計系統 token。確實需要的行加註 `allow-hardcoded`。
+- **字太小**:任何文字小於設計系統最小字級 `--social-caption`(24px)即警告。
+- **對比不足**:按 WCAG AA,一般字 4.5:1、大字(24px 以上,或 18.67px 以上粗體)3:1。底色由祖先逐層疊合計算。
+- **相片上的文字**(實拍問答頁字幕、相片封面)無法自動判斷,會列明「請目測」,不當作通過。
+- 超字仍是唯一令結束碼變 2 的項目;其餘是警告,出圖照常。

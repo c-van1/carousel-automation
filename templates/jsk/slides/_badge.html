@@ -1,4 +1,4 @@
 {# 折扣徽章:8 瓣花形,米白底綠字(五折系列 A 款);文字由 promo.discount 計出 #}
 {% if slide.showBadge %}
-<div class="jsk-badge">{{ flowerSvg | safe }}<span class="jsk-badge-text"><b>{{ badgeTop }}</b>{% if badgeBottom %}<small>{{ badgeBottom }}</small>{% endif %}</span></div>
+<div class="jsk-badge" data-contrast-bg>{{ flowerSvg | safe }}<span class="jsk-badge-text"><b>{{ badgeTop }}</b>{% if badgeBottom %}<small>{{ badgeBottom }}</small>{% endif %}</span></div>
 {% endif %}
