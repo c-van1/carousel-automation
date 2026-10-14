@@ -1,0 +1,35 @@
+{# 多產品陳列:1 至 5 款並排。join = plus(加號)、steps(1 → 2 次序)、none(並排,如補貨頁)。
+   價錢全部由 sku 對價錢檔;sum 由程式計出 #}
+{% set join = slide.join or 'none' %}
+<section class="jsk-frame jsk-s-{{ slideStyle }} jsk-products jsk-n-{{ slide.items.length }} jsk-join-{{ join }}" data-type="products">
+  {% include "slides/_chrome.html" %}
+  <div class="jsk-content" data-fit>
+    {% if slide.title %}<h2 class="jsk-heading">{{ slide.title | br }}</h2>{% endif %}
+    {% if slide.body %}<p class="jsk-body" data-shrink>{{ slide.body | br }}</p>{% endif %}
+    <div class="jsk-shelf">
+      {% for item in slide.items %}
+      {% if not loop.first and join == 'plus' %}<div class="jsk-join">+</div>{% endif %}
+      {% if not loop.first and join == 'steps' %}<div class="jsk-join">→</div>{% endif %}
+      <div class="jsk-shelf-item">
+        {% if join == 'steps' %}<span class="jsk-step">{{ loop.index }}</span>{% endif %}
+        <div class="jsk-shelf-img">{% if item.imageUrl %}<img src="{{ item.imageUrl }}" alt="">{% endif %}</div>
+        {% if slide.items.length < 5 %}<p class="jsk-shelf-name">{% if item.label %}<span>{{ item.label }}</span>{% endif %}{{ item.name or item.price.name }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="jsk-shelf-prices">
+      {% for item in slide.items %}
+      {% if not loop.first and join != 'none' %}<div class="jsk-join jsk-join-spacer"></div>{% endif %}
+      <div class="jsk-shelf-price">{% if item.price %}<div class="jsk-price"><span class="jsk-price-now">{{ currency }}{{ item.price.now }}</span>{% if item.price.now != item.price.was %}<s class="jsk-price-was">{{ currency }}{{ item.price.was }}</s>{% endif %}</div>{% endif %}</div>
+      {% endfor %}
+    </div>
+    {% if slide.sum %}
+    <div class="jsk-sum">
+      <div><p class="jsk-sum-label">{{ slide.totalLabel or (slide.items.length == 2 and '兩款合共' or '合共') }}</p>
+        {% if slide.totalNote %}<p class="jsk-sum-note">{{ slide.totalNote }}</p>{% endif %}</div>
+      <div class="jsk-price jsk-sum-price"><span class="jsk-price-now">{{ currency }}{{ slide.sum.now }}</span>
+        {% if slide.sum.now != slide.sum.was %}<s class="jsk-price-was">{{ currency }}{{ slide.sum.was }}</s>{% endif %}</div>
+    </div>
+    {% endif %}
+  </div>
+</section>

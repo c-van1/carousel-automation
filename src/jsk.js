@@ -33,6 +33,7 @@ export const JSK_TYPES = {
   bullets: { required: ['items'] },
   statement: { required: ['text'] },
   product: { required: [], image: true, oneOf: ['name', 'sku'] },
+  products: { required: ['items'] },
   end: { required: [] },
 };
 
@@ -108,6 +109,28 @@ function prepareSlides(content, contentDir, warnings) {
     if (spec.oneOf && !spec.oneOf.some((k) => slide[k])) {
       errors.push(`第 ${page} 頁(${slide.type}):${spec.oneOf.join(' 或 ')} 至少要有一個`);
     }
+    if (slide.type === 'products' && Array.isArray(slide.items)) {
+      const where = `第 ${page} 頁(products)`;
+      if (slide.items.length > 5) errors.push(`${where}:最多 5 款,現有 ${slide.items.length} 款`);
+      if (slide.join && !['plus', 'steps', 'none'].includes(slide.join)) {
+        errors.push(`${where}:join 只可以是 plus、steps 或 none`);
+      }
+      slide.items.forEach((item, k) => {
+        if (!item.sku) { errors.push(`${where}:第 ${k + 1} 款缺少 sku`); return; }
+        item.price = priceFor(item.sku, prices, promo, where, errors, warnings);
+        if (item.image) {
+          const abs = isAbsolute(item.image) ? item.image : resolve(contentDir, item.image);
+          if (existsSync(abs)) item.imageUrl = pathToFileURL(abs).href;
+          else warnings.push(`${where}:找不到 ${item.sku} 相片 ${item.image},只出文字`);
+        } else warnings.push(`${where}:${item.sku} 沒有相片,只出文字`);
+      });
+      /* 合共:plus、steps 預設顯示,可用 total: false 關閉 */
+      const join = slide.join || 'none';
+      if (slide.total ?? (join !== 'none' && slide.items.length > 1)) {
+        const ps = slide.items.map((it) => it.price).filter(Boolean);
+        slide.sum = { now: ps.reduce((a, b) => a + b.now, 0), was: ps.reduce((a, b) => a + b.was, 0) };
+      }
+    }
     if (slide.sku) slide.price = priceFor(slide.sku, prices, promo, `第 ${page} 頁(${slide.type})`, errors, warnings);
     /* 徽章:有 promo 時封面預設顯示,其他頁要 "badge": true;"badge": false 一律隱藏 */
     slide.showBadge = Boolean(promo) && slide.badge !== false && (slide.badge === true || slide.type === 'cover');
@@ -150,7 +173,7 @@ function buildHtml(content, dsDir) {
     size: content.size || 'post',
     deckStyle: content.style || 'green',
     bandRight: content.bandRight || '',
-    currency: content.currency ?? '$',
+    currency: content.currency ?? 'HK$',
     badgeTop: content.promo ? (content.promo.badgeTop || `${Math.round(content.promo.discount * 100)}%`) : '',
     badgeBottom: content.promo ? (content.promo.badgeBottom ?? 'OFF') : '',
     flowerSvg: readFileSync(join(root, 'flower.svg'), 'utf-8').replace(/<!--[\s\S]*?-->\n?/, ''),
@@ -187,7 +210,7 @@ async function fitPages(page) {
         targets.forEach((t) => { t.style.fontSize = `${size}px`; });
       }
       const over = span(box) - box.clientHeight;
-      if (over > 1) return { page: i + 1, status: 'overflow', overPx: Math.round(over), fontPx: size };
+      if (over > 1) return { page: i + 1, status: 'overflow', overPx: Math.round(over), fromPx: start, fontPx: size };
       if (size !== start) return { page: i + 1, status: 'shrunk', fromPx: start, fontPx: size };
       return { page: i + 1, status: 'ok' };
     });
@@ -208,6 +231,8 @@ export async function renderJsk(content, { contentPath, outputDir, imageFormat =
   const page = await browser.newPage({ viewport: { width: 1080, height: 1350 } });
   await page.goto(pathToFileURL(htmlPath).href, { waitUntil: 'networkidle', timeout: 30000 });
   await page.evaluate(() => document.fonts.ready);
+  /* 等所有相片解碼完才截圖,避免截到未畫完的頁(曾出現下半頁空白) */
+  await page.evaluate(() => Promise.all([...document.images].map((im) => im.decode().catch(() => {}))));
   /* 畫布大小以設計系統 token 為準,量度第一頁後把視窗設成同一大小 */
   const { W, H } = await page.evaluate(() => {
     const f = document.querySelector('.jsk-frame').getBoundingClientRect();
@@ -218,7 +243,8 @@ export async function renderJsk(content, { contentPath, outputDir, imageFormat =
   const fit = await fitPages(page);
   for (const f of fit) {
     if (f.status === 'shrunk') warnings.push(`第 ${f.page} 頁:字數偏多,正文由 ${f.fromPx}px 自動縮至 ${f.fontPx}px`);
-    if (f.status === 'overflow') warnings.push(`第 ${f.page} 頁:超出版面 ${f.overPx}px(已縮至下限 ${f.fontPx}px),請刪字或分頁`);
+    if (f.status === 'overflow') warnings.push(`第 ${f.page} 頁:超出版面 ${f.overPx}px`
+      + (f.fontPx < f.fromPx ? `(正文已縮至下限 ${f.fontPx}px)` : '') + ',請刪字、減少產品或分頁');
   }
 
   const ext = imageFormat === 'jpeg' ? 'jpg' : 'png';

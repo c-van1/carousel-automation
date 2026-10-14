@@ -31,6 +31,9 @@ node src/render.js path/to/deck.json --output path/to/out
     { "type": "bullets", "title": "…", "items": ["…"], "note": "可省略" },
     { "type": "statement", "text": "一句話", "note": "可省略" },
     { "type": "product", "sku": "R1030", "name": "標題,可省略(省略用 Odoo 產品名)", "meta": "30 ml(可省略)", "image": "去背圖", "badge": true, "body": "可省略" },
+    { "type": "products", "title": "…", "body": "可省略", "join": "plus | steps | none",
+      "items": [ { "sku": "R1007", "image": "去背圖", "label": "可省略,如「先用」" }, { "sku": "R1030", "image": "…" } ],
+      "total": "可省略;plus、steps 預設顯示合共", "totalLabel": "可省略,兩款預設「兩款合共」", "totalNote": "可省略" },
     { "type": "end", "cta": "可省略,預設用定稿結尾卡原字" }
   ]
 }
@@ -63,7 +66,13 @@ node src/render.js path/to/deck.json --output path/to/out
 - 價錢檔沒有該 SKU、或用了 sku 卻沒指定價錢檔,一律中止出圖,不會猜價錢。
 - `"promo": { "discount": 0.5 }`:discount 是減去的比例,0.5 = 五折(50% OFF),0.2 = 八折(20% OFF)。
   折後價 = 原價 ×(1 − discount),非整數會四捨五入並在 report 提示。原價刪線顯示。
-- 貨幣符號預設 `$`(跟五折系列定稿),可用 `"currency": "HK$"` 改。
+- 貨幣符號預設 `HK$`(跟設計系統 PriceTag 一致),可用 `"currency"` 改。
 - 徽章:8 瓣花形(`templates/jsk/flower.svg`,由品牌花形 PNG 量度重繪,待併入設計系統),米白底綠字。
   有 promo 時封面自動顯示;產品頁要 `"badge": true`;任何頁 `"badge": false` 隱藏。
   徽章字由 discount 計出,可用 `promo.badgeTop` / `promo.badgeBottom` 覆寫。
+
+## 多產品陳列(products)
+
+- 1 至 5 款並排在淺鼠尾草面板,每款下面是價錢(由 sku 對價錢檔),最後一列是合共(程式加總,不手寫)。
+- `join`:`plus` 兩款之間加號(搭配使用)、`steps` 加 1、2 圓點與箭咀(使用次序)、`none` 只並排(如補貨頁,預設)。
+- 5 款時不顯示產品名,只顯示價錢;字級按款數自動收細。放不下會回報超字,請刪字、減少產品或分頁。

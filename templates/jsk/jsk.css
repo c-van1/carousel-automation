@@ -316,3 +316,59 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; }
 .jsk-product-img .jsk-badge { --jsk-badge: 200px; right: 24px; top: 24px; }
 .jsk-s-green .jsk-product-img .jsk-badge { color: var(--social-bg); }
 .jsk-s-green .jsk-product-img .jsk-badge-text { color: var(--social-ink); }
+
+/* ==========================================================================
+   多產品陳列(products):面板內並排去背圖,下面逐款價錢,最後合共列。由五折 Post2 提煉
+   ========================================================================== */
+:root { --jsk-shelf-h: 300px; }
+.jsk-size-story { --jsk-shelf-h: 320px; }
+.jsk-size-square { --jsk-shelf-h: 140px; }
+.jsk-size-square .jsk-products { --jsk-price: 46px; }
+.jsk-size-square .jsk-shelf { margin-top: 24px; padding-top: 28px; }
+.jsk-size-square .jsk-sum { margin-top: 20px; padding-top: 16px; }
+.jsk-products { --jsk-price: 56px; --jsk-price-was: 26px; }
+
+.jsk-products .jsk-body { font-size: var(--social-body); line-height: var(--social-lh-body); }
+.jsk-shelf {
+  display: flex; align-items: stretch; margin-top: 32px; max-width: none;
+  background: var(--color-secondary-tint); border-radius: var(--social-radius-panel); padding: 40px 32px 24px;
+}
+.jsk-s-green .jsk-shelf { background: var(--social-panel); }
+.jsk-shelf-item { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; position: relative; }
+.jsk-shelf-img { height: var(--jsk-shelf-h); width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.jsk-shelf-img img { max-width: 92%; max-height: 100%; object-fit: contain; }
+.jsk-shelf-name { margin: 20px 0 0; font-size: var(--social-caption); color: var(--color-text-muted); text-align: center; }
+.jsk-s-green .jsk-shelf-name { color: var(--social-ink-dim); }
+.jsk-shelf-name span { margin-right: 10px; }
+.jsk-join {
+  flex: none; width: 64px; display: flex; align-items: center; justify-content: center;
+  font-size: 56px; color: var(--color-primary); font-weight: 700;
+}
+.jsk-s-green .jsk-join { color: var(--social-ink); }
+.jsk-step {
+  position: absolute; top: -12px; width: 52px; height: 52px; border-radius: 50%;
+  background: var(--color-primary); color: var(--color-text-on-primary);
+  display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; z-index: 1;
+}
+.jsk-s-green .jsk-step { background: var(--social-ink); color: var(--social-bg); }
+
+.jsk-shelf-prices { display: flex; padding: 0 32px; max-width: none; }
+.jsk-shelf-price { flex: 1 1 0; min-width: 0; display: flex; justify-content: center; }
+.jsk-join-spacer { visibility: hidden; }
+.jsk-shelf-price .jsk-price { align-items: center; }
+.jsk-n-3 .jsk-shelf-price, .jsk-n-4 .jsk-shelf-price { --jsk-price: 46px; --jsk-price-was: var(--social-caption); }
+.jsk-n-5 .jsk-shelf-price { --jsk-price: 40px; --jsk-price-was: var(--social-caption); }
+.jsk-n-5 .jsk-shelf { padding-left: 16px; padding-right: 16px; }
+.jsk-n-5 .jsk-shelf-prices { padding: 0 16px; }
+
+.jsk-sum {
+  display: flex; justify-content: space-between; align-items: flex-end; max-width: none;
+  margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--color-border);
+}
+.jsk-s-green .jsk-sum { border-top-color: var(--social-ink-dim); }
+.jsk-sum-label { margin: 0; font-family: var(--font-canva-display); font-weight: 900; font-size: var(--social-h3); color: var(--color-primary); }
+.jsk-s-green .jsk-sum-label { color: var(--social-ink); }
+.jsk-sum-note { margin: 8px 0 0; font-size: var(--social-caption); color: var(--color-text-muted); }
+.jsk-sum-price { margin: 0; align-items: flex-end; }
+.jsk-s-green.jsk-products .jsk-price-now { color: var(--social-ink); }
+.jsk-s-green.jsk-products .jsk-price-was { color: var(--social-ink-dim); }
