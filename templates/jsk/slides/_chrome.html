@@ -1,0 +1,5 @@
+{# 每頁共用:裝飾圓形、系列 chip、頁碼。chip 預設用整份的 series,單頁可用 chip 覆寫或設 false 隱藏 #}
+<div class="jsk-blob b1"></div><div class="jsk-blob b2"></div>
+{% set chipText = slide.chip if slide.chip is defined else series %}
+{% if chipText %}<div class="jsk-top"><span class="jsk-chip">{{ chipText }}</span></div>{% endif %}
+{% if showPageNo %}<div class="jsk-pageno">{{ n | pad2 }} / {{ total | pad2 }}</div>{% endif %}

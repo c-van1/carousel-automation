@@ -1,0 +1,7 @@
+<section class="jsk-frame jsk-statement jsk-deco-{{ n % 3 }}" data-type="statement">
+  {% include "slides/_chrome.html" %}
+  <div class="jsk-content" data-fit>
+    <p class="jsk-statement-text">{{ slide.text | br }}</p>
+    {% if slide.note %}<p class="jsk-statement-note" data-shrink>{{ slide.note | br }}</p>{% endif %}
+  </div>
+</section>

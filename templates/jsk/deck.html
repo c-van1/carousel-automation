@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-HK">
+<head>
+<meta charset="utf-8">
+<title>{{ title }}</title>
+{# 設計系統是唯一的事實來源:token、字型、Logo、結尾卡都從這裡讀 #}
+<link rel="stylesheet" href="{{ dsUrl }}/styles.css">
+<style>{{ inlineStyles | safe }}</style>
+</head>
+<body>
+{% for slide in slides %}
+{% set n = loop.index %}{% set total = loop.length %}
+{% include "slides/" + slide.type + ".html" %}
+{% endfor %}
+</body>
+</html>

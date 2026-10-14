@@ -1,0 +1,11 @@
+<section class="jsk-frame jsk-numbered jsk-deco-{{ n % 3 }}" data-type="numbered">
+  {% include "slides/_chrome.html" %}
+  <div class="jsk-content" data-fit>
+    {% if slide.title %}<h2 class="jsk-heading">{{ slide.title | br }}</h2>{% endif %}
+    {% if slide.intro %}<p class="jsk-intro" data-shrink>{{ slide.intro | br }}</p>{% endif %}
+    <ol class="jsk-items">
+      {% for item in slide.items %}<li class="jsk-item" data-shrink><span class="jsk-num">{{ loop.index | pad2 }}</span><span>{{ item | br }}</span></li>{% endfor %}
+    </ol>
+    {% if slide.note %}<p class="jsk-outro-note" data-shrink>{{ slide.note | br }}</p>{% endif %}
+  </div>
+</section>

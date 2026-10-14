@@ -1,0 +1,8 @@
+<section class="jsk-frame jsk-tp jsk-deco-{{ n % 3 }}{% if slide.imageUrl %} has-photo{% endif %}" data-type="title-paragraph">
+  {% include "slides/_chrome.html" %}
+  <div class="jsk-content" data-fit>
+    {% if slide.imageUrl %}<div class="jsk-photo-box"><img class="jsk-photo" src="{{ slide.imageUrl }}" alt=""></div>{% endif %}
+    {% if slide.title %}<h2 class="jsk-heading">{{ slide.title | br }}</h2>{% endif %}
+    {% if slide.body %}<p class="jsk-body" data-shrink>{{ slide.body | br }}</p>{% endif %}
+  </div>
+</section>

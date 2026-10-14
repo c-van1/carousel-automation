@@ -1,0 +1,161 @@
+/* 肌本 (Just Skincare) 版型樣式。
+   顏色、字型、畫布尺寸、圓角全部引用設計系統的 token(styles.css 由 deck.html 載入),
+   本檔不另抄品牌數值。
+
+   下面 :root 的 --jsk-* 是「呼吸感」版面規則(大字、垂直置中、限制文字寬度),
+   設計系統目前未有對應 token。確認效果後應併入設計系統的 tokens/social.css,
+   屆時把這一段刪掉即可,版型不用改。 */
+
+:root {
+  --jsk-h1: 92px;              /* 封面大標 */
+  --jsk-h2: 66px;              /* 內頁標題 */
+  --jsk-statement: 64px;       /* 一句話頁 */
+  --jsk-body: 42px;            /* 正文:設計系統現值 30px,放大至約 1.4 倍 */
+  --jsk-body-min: 34px;        /* 自動縮字的下限,再小就回報超字 */
+  --jsk-body-lh: 1.7;
+  --jsk-item: 40px;            /* 編號要點、清單 */
+  --jsk-measure: 900px;        /* 文字最大寬度 */
+  --jsk-top: 176px;            /* 內容區上緣(留位給系列 chip) */
+  --jsk-bottom: 168px;         /* 內容區下緣(留位給頁碼) */
+  --jsk-gap-head: 44px;        /* 標題與正文的距離 */
+}
+
+html, body { margin: 0; padding: 0; background: #e9e9e5; }
+* { box-sizing: border-box; }
+
+.jsk-frame {
+  position: relative;
+  width: var(--social-w);
+  height: var(--social-h);
+  overflow: hidden;
+  background: var(--social-bg);
+  color: var(--social-ink);
+  font-family: var(--font-body-tc);
+  page-break-after: always;
+}
+.jsk-frame:last-child { page-break-after: auto; }
+
+/* ---- 裝飾:淺綠圓形,每頁最多兩個,位置按頁序輪換 ---- */
+.jsk-blob { position: absolute; border-radius: 50%; background: var(--social-blob-light); opacity: 0.55; }
+.jsk-deco-0 .b1 { width: 760px; height: 760px; left: -300px; top: -220px; }
+.jsk-deco-0 .b2 { width: 560px; height: 560px; right: -220px; bottom: -200px; }
+.jsk-deco-1 .b1 { width: 900px; height: 900px; right: -420px; top: 160px; }
+.jsk-deco-1 .b2 { display: none; }
+.jsk-deco-2 .b1 { width: 820px; height: 820px; left: -360px; bottom: -300px; }
+.jsk-deco-2 .b2 { width: 420px; height: 420px; right: -140px; top: -120px; }
+
+/* ---- 頁首系列 chip 與頁碼 ---- */
+.jsk-chip {
+  display: inline-block;
+  background: var(--social-chip-bg);
+  color: var(--social-chip-ink);
+  font-size: var(--social-kicker);
+  letter-spacing: var(--social-ls-wide);
+  padding: 10px 22px;
+  border-radius: var(--social-radius-chip);
+  line-height: 1.3;
+}
+.jsk-top { position: absolute; left: var(--social-gutter); top: var(--social-gutter); z-index: 2; }
+.jsk-pageno {
+  position: absolute; right: var(--social-gutter); bottom: 64px; z-index: 2;
+  font-size: var(--social-caption); letter-spacing: var(--social-ls-wide);
+  color: var(--social-ink-dim);
+}
+
+/* ---- 內容區:垂直置中、限制寬度 ---- */
+.jsk-content {
+  position: absolute;
+  left: var(--social-gutter); right: var(--social-gutter);
+  top: var(--jsk-top); bottom: var(--jsk-bottom);
+  display: flex; flex-direction: column; justify-content: center;
+  z-index: 1;
+}
+.jsk-content > * { max-width: var(--jsk-measure); }
+/* 標題與大字句避免單字孤行 */
+.jsk-heading, .jsk-cover-title, .jsk-statement-text { text-wrap: balance; }
+.jsk-body, .jsk-intro, .jsk-item, .jsk-outro-note, .jsk-statement-note { text-wrap: pretty; }
+
+.jsk-heading {
+  font-family: var(--font-canva-display);
+  font-size: var(--jsk-h2);
+  line-height: var(--social-lh-tight);
+  letter-spacing: var(--social-ls-head);
+  margin: 0 0 var(--jsk-gap-head);
+  font-weight: 900;
+}
+.jsk-body {
+  font-size: var(--jsk-body);
+  line-height: var(--jsk-body-lh);
+  margin: 0;
+}
+
+/* ---- 相片 ---- */
+.jsk-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+.jsk-photo-box { border-radius: var(--social-radius-photo); overflow: hidden; flex: none; }
+
+/* ---- 封面 ---- */
+.jsk-cover .jsk-content { justify-content: flex-end; bottom: 200px; }
+.jsk-cover-title {
+  font-family: var(--font-canva-display); font-weight: 900;
+  font-size: var(--jsk-h1); line-height: 1.2; letter-spacing: var(--social-ls-head);
+  margin: 32px 0 0;
+}
+.jsk-cover-sub { font-size: var(--social-subhead); line-height: 1.45; margin: 28px 0 0; color: var(--social-ink-dim); }
+.jsk-swipe {
+  position: absolute; left: var(--social-gutter); bottom: 64px; z-index: 2;
+  font-size: var(--social-caption); letter-spacing: var(--social-ls-wide); color: var(--social-ink-dim);
+}
+.jsk-cover-cloud { position: absolute; right: -220px; top: -120px; width: 1100px; color: var(--social-blob-light); opacity: 0.6; }
+.jsk-cover-cloud svg { width: 100%; height: auto; display: block; }
+.jsk-cover.has-photo .jsk-cover-photo { position: absolute; inset: 0 0 40% 0; }
+.jsk-cover.has-photo .jsk-cover-fade {
+  position: absolute; left: 0; right: 0; top: 46%; bottom: 0;
+  background: linear-gradient(to bottom, transparent 0%, var(--social-bg) 30%);
+}
+.jsk-cover.has-photo .jsk-content { top: 62%; bottom: 150px; justify-content: flex-start; }
+.jsk-cover.has-photo .jsk-cover-title { font-size: var(--social-h1); margin-top: 0; }
+.jsk-cover.has-photo .jsk-cover-sub { margin-top: 20px; }
+
+/* ---- 標題加內文(有相片時:相片在上,文字在下) ---- */
+.jsk-tp.has-photo .jsk-content { top: var(--social-gutter); justify-content: flex-start; }
+.jsk-tp.has-photo .jsk-photo-box { height: 560px; margin-bottom: 56px; max-width: none; }
+.jsk-tp.has-photo .jsk-heading { font-size: var(--social-h2); margin-bottom: 28px; }
+
+/* ---- 編號要點、清單 ---- */
+.jsk-intro { font-size: var(--jsk-body); line-height: var(--jsk-body-lh); margin: 0 0 40px; }
+.jsk-items { display: flex; flex-direction: column; gap: 20px; margin: 0; padding: 0; list-style: none; }
+.jsk-item {
+  background: var(--social-panel); border-radius: var(--social-radius-panel);
+  padding: 30px 36px; display: flex; gap: 28px; align-items: baseline;
+  font-size: var(--jsk-item); line-height: 1.55;
+}
+.jsk-num { font-family: var(--font-canva-display); font-weight: 900; font-size: 52px; line-height: 1; opacity: 0.75; flex: none; }
+.jsk-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--social-ink); flex: none; transform: translateY(-6px); }
+.jsk-outro-note { font-size: var(--jsk-body); line-height: var(--jsk-body-lh); margin: 40px 0 0; color: var(--social-ink-dim); }
+
+/* ---- 一句話頁 ---- */
+.jsk-statement-text {
+  font-family: var(--font-canva-display); font-weight: 900;
+  font-size: var(--jsk-statement); line-height: 1.35; letter-spacing: var(--social-ls-head); margin: 0;
+}
+.jsk-statement-note { font-size: var(--jsk-body); line-height: var(--jsk-body-lh); margin: 48px 0 0; color: var(--social-ink-dim); }
+
+/* ---- 產品頁:米白底深綠字(設計系統 quote 配色) ---- */
+.jsk-product { background: var(--social-quote-bg); color: var(--social-quote-ink); }
+.jsk-product .jsk-chip { background: var(--social-bg); color: var(--social-ink); }
+.jsk-product .jsk-pageno { color: var(--color-text-muted); }
+.jsk-product .jsk-content { align-items: center; text-align: center; }
+.jsk-product-img { width: 640px; height: 620px; display: flex; align-items: center; justify-content: center; margin-bottom: 40px; max-width: none; }
+.jsk-product-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.jsk-product .jsk-heading { margin-bottom: 20px; }
+.jsk-meta { font-size: var(--social-subhead); letter-spacing: var(--social-ls-head); color: var(--jsc-green-700); margin: 0; }
+.jsk-product .jsk-body { text-align: center; margin-top: 32px; color: var(--color-text); }
+
+/* ---- 結尾卡:直接用設計系統定稿圖 ---- */
+.jsk-end img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.jsk-end-cta {
+  position: absolute; left: 290px; top: 1179px; width: 500px; height: 121px;
+  border: 5px solid var(--social-ink); border-radius: 61px; background: var(--jsc-green-700);
+  color: var(--social-ink); display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-canva-display); font-size: 34px; letter-spacing: var(--social-ls-head);
+}

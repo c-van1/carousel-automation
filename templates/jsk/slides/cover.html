@@ -1,0 +1,15 @@
+<section class="jsk-frame jsk-cover jsk-deco-{{ n % 3 }}{% if slide.imageUrl %} has-photo{% endif %}" data-type="cover">
+  {% if slide.imageUrl %}
+  <div class="jsk-cover-photo"><img class="jsk-photo" src="{{ slide.imageUrl }}" alt=""></div>
+  <div class="jsk-cover-fade"></div>
+  {% else %}
+  <div class="jsk-cover-cloud">{{ cloudSvg | safe }}</div>
+  {% endif %}
+  <div class="jsk-content" data-fit>
+    {% set chipText = slide.chip if slide.chip is defined else series %}
+    {% if chipText %}<div><span class="jsk-chip">{{ chipText }}</span></div>{% endif %}
+    <h1 class="jsk-cover-title">{{ slide.title | br }}</h1>
+    {% if slide.subtitle %}<p class="jsk-cover-sub">{{ slide.subtitle | br }}</p>{% endif %}
+  </div>
+  {% if slide.swipe !== false %}<div class="jsk-swipe">{{ slide.swipe or "向左滑看下去" }}</div>{% endif %}
+</section>
