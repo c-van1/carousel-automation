@@ -224,12 +224,15 @@ function buildHtml(content, dsDir) {
 }
 
 /**
- * 在頁面內逐頁檢查內容是否放得下;放不下就把正文([data-shrink])逐步縮小,
- * 直到放得下或到達 --jsk-body-min。回傳每頁的處理結果。
+ * 在頁面內逐頁檢查內容是否放得下;放不下就把正文([data-shrink])每級縮 2px,
+ * 最多 MAX_SHRINK_STEPS 級(亦不低於 --jsk-body-min)。仍放不下即 overflow,出圖失敗。
+ * 只容許小幅縮字:字多是文案問題,應刪字或分頁,不應令同一系列字級不一(Vanessa 2026-10-14)。
  */
+const MAX_SHRINK_STEPS = 2;
+
 async function fitPages(page) {
-  return page.evaluate(() => {
-    const min = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--jsk-body-min')) || 34;
+  return page.evaluate((maxSteps) => {
+    const tokenMin = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--jsk-body-min')) || 34;
     const span = (box) => {
       const kids = [...box.children].filter((k) => k.offsetParent !== null);
       if (!kids.length) return 0;
@@ -244,6 +247,7 @@ async function fitPages(page) {
       if (!box) return { page: i + 1, status: 'ok' };
       const targets = [...box.querySelectorAll('[data-shrink]')];
       const start = targets.length ? parseFloat(getComputedStyle(targets[0]).fontSize) : 0;
+      const min = Math.max(tokenMin, start - 2 * maxSteps);
       let size = start;
       while (span(box) > box.clientHeight + 1 && targets.length && size - 2 >= min) {
         size -= 2;
@@ -254,7 +258,7 @@ async function fitPages(page) {
       if (size !== start) return { page: i + 1, status: 'shrunk', fromPx: start, fontPx: size };
       return { page: i + 1, status: 'ok' };
     });
-  });
+  }, MAX_SHRINK_STEPS);
 }
 
 /**
@@ -383,7 +387,7 @@ export async function renderJsk(content, { contentPath, outputDir, imageFormat =
   for (const f of fit) {
     if (f.status === 'shrunk') warnings.push(`第 ${f.page} 頁:字數偏多,正文由 ${f.fromPx}px 自動縮至 ${f.fontPx}px`);
     if (f.status === 'overflow') warnings.push(`第 ${f.page} 頁:超出版面 ${f.overPx}px`
-      + (f.fontPx < f.fromPx ? `(正文已縮至下限 ${f.fontPx}px)` : '') + ',請刪字、減少產品或分頁');
+      + (f.fontPx < f.fromPx ? `(已縮至容許下限 ${f.fontPx}px,最多縮 ${MAX_SHRINK_STEPS} 級)` : '') + ',請刪字、減少產品或分頁');
   }
   const checks = { hardcodedColors: lintHardcodedColors(), pages: await checkPages(page) };
   if (checks.hardcodedColors.length) warnings.push(`樣式寫死色碼(應改用設計系統 token):${checks.hardcodedColors.join('、')}`);
