@@ -372,3 +372,113 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; }
 .jsk-sum-price { margin: 0; align-items: flex-end; }
 .jsk-s-green.jsk-products .jsk-price-now { color: var(--social-ink); }
 .jsk-s-green.jsk-products .jsk-price-was { color: var(--social-ink-dim); }
+
+/* ==========================================================================
+   選單列表(menu)
+   ========================================================================== */
+.jsk-menu-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; max-width: none; }
+.jsk-menu-row {
+  display: flex; align-items: center; gap: 24px; min-height: 132px; padding: 16px 32px;
+  background: var(--color-secondary-tint); border-radius: var(--social-radius-panel);
+}
+.jsk-s-green .jsk-menu-row { background: var(--social-panel); }
+.jsk-menu-text {
+  flex: 1; font-family: var(--font-canva-display); font-weight: 900; font-size: var(--jsk-item);
+  letter-spacing: var(--social-ls-head); color: var(--color-primary);
+}
+.jsk-s-green .jsk-menu-text { color: var(--social-ink); }
+.jsk-menu-imgs { display: flex; align-items: flex-end; gap: 4px; height: 108px; }
+.jsk-menu-imgs img { height: 100%; width: auto; object-fit: contain; }
+.jsk-menu-page { flex: none; width: 96px; text-align: right; font-size: var(--social-caption); color: var(--color-text-muted); }
+.jsk-s-green .jsk-menu-page { color: var(--social-ink-dim); }
+.jsk-size-square .jsk-menu-row { min-height: 96px; padding: 10px 28px; }
+.jsk-size-square .jsk-menu-imgs { height: 76px; }
+
+/* ==========================================================================
+   組合頁(bundle)
+   ========================================================================== */
+:root { --jsk-bundle-h: 460px; --jsk-bundle-price: 120px; }
+.jsk-size-story { --jsk-bundle-h: 440px; }
+.jsk-size-square { --jsk-bundle-h: 260px; --jsk-bundle-price: 84px; }
+.jsk-bundle .jsk-content { align-items: center; text-align: center; }
+.jsk-bundle .jsk-body { font-size: var(--social-body); line-height: var(--social-lh-body); }
+.jsk-bundle-stage {
+  position: relative; width: 100%; max-width: none; height: var(--jsk-bundle-h); margin-top: 36px;
+  display: flex; align-items: flex-end; justify-content: center; padding: 40px 0 36px;
+  background: var(--color-secondary-tint); border-radius: var(--social-radius-panel);
+}
+.jsk-s-green .jsk-bundle-stage { background: var(--social-panel); }
+/* 產品疊放:相鄰產品互相重疊少許,中間一款最前 */
+.jsk-bundle-item { height: 100%; display: flex; align-items: flex-end; margin: 0 -6px; }
+.jsk-bundle-item img { height: 100%; width: auto; object-fit: contain; }
+.jsk-bundle-item:nth-child(2) { z-index: 1; }
+.jsk-bundle-stage .jsk-badge { --jsk-badge: 200px; right: 24px; top: 24px; }
+.jsk-bundle-names { margin: 24px 0 0; font-size: var(--social-caption); color: var(--color-text-muted); letter-spacing: var(--social-ls-head); }
+.jsk-s-green .jsk-bundle-names { color: var(--social-ink-dim); }
+.jsk-bundle-price { display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; gap: 8px 20px; margin-top: 12px; max-width: none; }
+.jsk-bundle-price .jsk-price-now { font-size: var(--jsk-bundle-price); }
+.jsk-bundle-price .jsk-price-was { font-size: var(--social-h3); }
+.jsk-bundle-label { font-size: var(--social-h3); font-family: var(--font-canva-display); font-weight: 900; color: var(--color-primary); }
+.jsk-bundle-save {
+  flex-basis: 100%; font-size: var(--social-caption); letter-spacing: var(--social-ls-wide);
+  color: var(--color-primary); font-weight: 700;
+}
+.jsk-s-green .jsk-bundle-label, .jsk-s-green .jsk-bundle-save, .jsk-s-green.jsk-bundle .jsk-price-now { color: var(--social-ink); }
+.jsk-s-green.jsk-bundle .jsk-price-was { color: var(--social-ink-dim); }
+
+/* ==========================================================================
+   步驟頁(steps)
+   ========================================================================== */
+.jsk-step-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; max-width: none; }
+.jsk-step-row { position: relative; display: flex; gap: 32px; align-items: flex-start; padding-bottom: 40px; }
+.jsk-step-row:last-child { padding-bottom: 0; }
+/* 圓點之間的直線 */
+.jsk-step-row:not(:last-child)::before {
+  content: ""; position: absolute; left: 31px; top: 64px; bottom: 0; width: 2px; background: var(--color-primary); opacity: 0.35;
+}
+.jsk-s-green .jsk-step-row:not(:last-child)::before { background: var(--social-ink); }
+.jsk-step-no {
+  flex: none; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: var(--color-primary); color: var(--color-text-on-primary);
+  font-family: var(--font-canva-display); font-weight: 900; font-size: 34px;
+}
+.jsk-s-green .jsk-step-no { background: var(--social-ink); color: var(--social-bg); }
+.jsk-step-copy { flex: 1; min-width: 0; padding-top: 6px; }
+.jsk-step-title { margin: 0; font-family: var(--font-canva-display); font-weight: 900; font-size: var(--social-h3); color: var(--color-primary); }
+.jsk-s-green .jsk-step-title { color: var(--social-ink); }
+.jsk-step-text { margin: 10px 0 0; font-size: var(--social-body); line-height: var(--social-lh-body); }
+.jsk-step-img { flex: none; width: 120px; height: 150px; display: flex; align-items: flex-end; justify-content: center; }
+.jsk-step-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.jsk-size-square .jsk-step-row { padding-bottom: 22px; }
+.jsk-size-square .jsk-step-img { height: 110px; }
+
+/* ==========================================================================
+   實拍問答頁(qa-photo):9:16 為主;卡片與字幕都放在平台介面安全區內
+   ========================================================================== */
+.jsk-qa { background: var(--social-bg); }
+.jsk-qa-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.jsk-qa-card {
+  position: absolute; left: var(--social-gutter); right: var(--social-gutter);
+  top: calc(var(--jsk-safe-top) + var(--social-gutter-tight));
+  padding: 36px 44px 40px; border-radius: var(--social-radius-panel);
+  background: oklch(from var(--color-bg-page) l c h / 0.92); color: var(--color-primary);
+}
+.jsk-qa-chip {
+  display: inline-block; padding: 6px 18px; border-radius: var(--social-radius-pill);
+  background: var(--color-primary); color: var(--color-text-on-primary);
+  font-size: var(--social-caption); letter-spacing: var(--social-ls-wide); font-weight: 700;
+}
+.jsk-qa-q {
+  margin: 20px 0 0; font-family: var(--font-canva-display); font-weight: 900;
+  font-size: var(--social-h1); line-height: var(--social-lh-tight); letter-spacing: var(--social-ls-head); text-wrap: balance;
+}
+.jsk-qa-answer {
+  position: absolute; left: var(--social-gutter); right: var(--social-gutter);
+  bottom: calc(var(--jsk-safe-bottom) + var(--social-gutter)); display: flex; justify-content: center;
+}
+.jsk-qa-answer span {
+  padding: 16px 32px; border-radius: var(--social-radius-panel); text-align: center;
+  background: var(--color-overlay-scrim); color: var(--color-text-inverse);
+  font-size: var(--social-subhead); line-height: 1.4; text-wrap: balance;
+}
+.jsk-size-post .jsk-qa-answer span, .jsk-size-square .jsk-qa-answer span { font-size: var(--social-h3); }

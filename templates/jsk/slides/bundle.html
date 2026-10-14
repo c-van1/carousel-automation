@@ -1,0 +1,19 @@
+{# 組合頁:一個組合作主角,產品疊放,大字組合價、原價與節省金額全部由 sku 計出 #}
+<section class="jsk-frame jsk-s-{{ slideStyle }} jsk-bundle jsk-deco-{{ n % 3 }}" data-type="bundle">
+  {% include "slides/_chrome.html" %}
+  <div class="jsk-content" data-fit>
+    {% if slide.title %}<h2 class="jsk-heading">{{ slide.title | br }}</h2>{% endif %}
+    {% if slide.body %}<p class="jsk-body" data-shrink>{{ slide.body | br }}</p>{% endif %}
+    <div class="jsk-bundle-stage">
+      {% for item in slide.items %}<div class="jsk-bundle-item">{% if item.imageUrl %}<img src="{{ item.imageUrl }}" alt="">{% endif %}</div>{% endfor %}
+      {% include "slides/_badge.html" %}
+    </div>
+    <p class="jsk-bundle-names">{% for item in slide.items %}{% if not loop.first %} + {% endif %}{{ item.price.name }}{% endfor %}</p>
+    <div class="jsk-bundle-price">
+      <span class="jsk-bundle-label">{{ slide.bundleLabel or '組合價' }}</span>
+      <span class="jsk-price-now">{{ currency }}{{ slide.sum.now }}</span>
+      {% if slide.sum.now != slide.sum.was %}<s class="jsk-price-was">{{ currency }}{{ slide.sum.was }}</s>
+      <span class="jsk-bundle-save">{{ slide.saveLabel or '節省' }} {{ currency }}{{ slide.sum.was - slide.sum.now }}</span>{% endif %}
+    </div>
+  </div>
+</section>

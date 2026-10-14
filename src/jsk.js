@@ -34,6 +34,10 @@ export const JSK_TYPES = {
   statement: { required: ['text'] },
   product: { required: [], image: true, oneOf: ['name', 'sku'] },
   products: { required: ['items'] },
+  menu: { required: ['rows'] },
+  bundle: { required: ['items'] },
+  steps: { required: ['steps'] },
+  'qa-photo': { required: ['question'], image: true },
   end: { required: [] },
 };
 
@@ -109,8 +113,37 @@ function prepareSlides(content, contentDir, warnings) {
     if (spec.oneOf && !spec.oneOf.some((k) => slide[k])) {
       errors.push(`第 ${page} 頁(${slide.type}):${spec.oneOf.join(' 或 ')} 至少要有一個`);
     }
+    const where = `第 ${page} 頁(${slide.type})`;
+    const imgUrl = (path, label) => {
+      if (!path) return undefined;
+      const abs = isAbsolute(path) ? path : resolve(contentDir, path);
+      if (existsSync(abs)) return pathToFileURL(abs).href;
+      warnings.push(`${where}:找不到${label}相片 ${path},已略過`);
+      return undefined;
+    };
+    if (slide.type === 'menu' && Array.isArray(slide.rows)) {
+      slide.rows.forEach((row, k) => {
+        if (!row.text) errors.push(`${where}:第 ${k + 1} 行缺少 text`);
+        row.imageUrls = (row.images || []).map((im) => imgUrl(im, `第 ${k + 1} 行`)).filter(Boolean);
+      });
+    }
+    if (slide.type === 'steps' && Array.isArray(slide.steps)) {
+      slide.steps.forEach((st, k) => {
+        if (!st.title && !st.text) errors.push(`${where}:第 ${k + 1} 步 title 或 text 至少要有一個`);
+        st.imageUrl = imgUrl(st.image, `第 ${k + 1} 步`);
+      });
+    }
+    if (slide.type === 'bundle' && Array.isArray(slide.items)) {
+      slide.items.forEach((item, k) => {
+        if (!item.sku) { errors.push(`${where}:第 ${k + 1} 款缺少 sku`); return; }
+        item.price = priceFor(item.sku, prices, promo, where, errors, warnings);
+        item.imageUrl = imgUrl(item.image, ` ${item.sku} `);
+      });
+      const ps = slide.items.map((it) => it.price).filter(Boolean);
+      slide.sum = { now: ps.reduce((a, b) => a + b.now, 0), was: ps.reduce((a, b) => a + b.was, 0) };
+    }
+    if (slide.type === 'qa-photo' && !slide.image) warnings.push(`${where}:沒有實拍相片,改用綠底`);
     if (slide.type === 'products' && Array.isArray(slide.items)) {
-      const where = `第 ${page} 頁(products)`;
       if (slide.items.length > 5) errors.push(`${where}:最多 5 款,現有 ${slide.items.length} 款`);
       if (slide.join && !['plus', 'steps', 'none'].includes(slide.join)) {
         errors.push(`${where}:join 只可以是 plus、steps 或 none`);

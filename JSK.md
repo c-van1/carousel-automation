@@ -34,6 +34,10 @@ node src/render.js path/to/deck.json --output path/to/out
     { "type": "products", "title": "…", "body": "可省略", "join": "plus | steps | none",
       "items": [ { "sku": "R1007", "image": "去背圖", "label": "可省略,如「先用」" }, { "sku": "R1030", "image": "…" } ],
       "total": "可省略;plus、steps 預設顯示合共", "totalLabel": "可省略,兩款預設「兩款合共」", "totalNote": "可省略" },
+    { "type": "menu", "title": "…", "intro": "可省略", "rows": [ { "text": "換季又刺又紅", "images": ["去背圖"], "page": "第 3 頁" } ] },
+    { "type": "bundle", "title": "…", "body": "可省略", "items": [ { "sku": "R1007", "image": "…" }, { "sku": "R1030", "image": "…" } ], "badge": true },
+    { "type": "steps", "title": "…", "steps": [ { "title": "洗臉", "text": "…", "image": "可省略" } ] },
+    { "type": "qa-photo", "chip": "問題 2 / 3", "question": "…", "answer": "可省略", "image": "實拍相片" },
     { "type": "end", "cta": "可省略,預設用定稿結尾卡原字" }
   ]
 }
@@ -76,3 +80,10 @@ node src/render.js path/to/deck.json --output path/to/out
 - 1 至 5 款並排在淺鼠尾草面板,每款下面是價錢(由 sku 對價錢檔),最後一列是合共(程式加總,不手寫)。
 - `join`:`plus` 兩款之間加號(搭配使用)、`steps` 加 1、2 圓點與箭咀(使用次序)、`none` 只並排(如補貨頁,預設)。
 - 5 款時不顯示產品名,只顯示價錢;字級按款數自動收細。放不下會回報超字,請刪字、減少產品或分頁。
+
+## 選單、組合、步驟、實拍問答
+
+- `menu` 選單列表:每行一個情況,右邊產品縮圖(`images`)和去向頁碼(`page`),用作系列目錄頁。
+- `bundle` 組合頁:產品並排、組合價大字、原價刪線、「節省 HK$…」,全部由 sku 計出。`bundleLabel`、`saveLabel` 可改字。
+- `steps` 步驟頁:直向編號步驟,圓點以直線連起,每步可配產品小圖。
+- `qa-photo` 實拍問答頁:相片滿版,上方米白問題卡,下方半透明答案字幕;主要用 `"size": "story"`,卡片與字幕自動避開 IG 介面。不用頁首條與頁碼。

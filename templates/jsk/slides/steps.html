@@ -1,0 +1,21 @@
+{# 步驟頁:直向編號步驟,每步一句,可配產品小圖;圓點之間以直線連起 #}
+<section class="jsk-frame jsk-s-{{ slideStyle }} jsk-stepsp jsk-deco-{{ n % 3 }}" data-type="steps">
+  {% include "slides/_chrome.html" %}
+  <div class="jsk-content" data-fit>
+    {% if slide.title %}<h2 class="jsk-heading">{{ slide.title | br }}</h2>{% endif %}
+    {% if slide.intro %}<p class="jsk-intro" data-shrink>{{ slide.intro | br }}</p>{% endif %}
+    <ol class="jsk-step-list">
+      {% for st in slide.steps %}
+      <li class="jsk-step-row">
+        <span class="jsk-step-no">{{ loop.index }}</span>
+        <div class="jsk-step-copy">
+          {% if st.title %}<p class="jsk-step-title">{{ st.title }}</p>{% endif %}
+          {% if st.text %}<p class="jsk-step-text" data-shrink>{{ st.text | br }}</p>{% endif %}
+        </div>
+        {% if st.imageUrl %}<div class="jsk-step-img"><img src="{{ st.imageUrl }}" alt=""></div>{% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+    {% if slide.note %}<p class="jsk-outro-note" data-shrink>{{ slide.note | br }}</p>{% endif %}
+  </div>
+</section>
