@@ -23,7 +23,7 @@
   --jsk-safe-bottom: 0px;
   --jsk-band-h: 96px;          /* band 樣式頁首條高度 */
   --jsk-photo-h: 560px;        /* 標題加內文頁的相片高度 */
-  --jsk-product-h: 620px;      /* 產品頁去背圖高度 */
+  --jsk-product-h: 540px;      /* 產品頁去背圖高度 */
 }
 
 /* ---- 尺寸:post 4:5(預設)、story 9:16、square 1:1,高度取設計系統 token ---- */
@@ -45,7 +45,7 @@
   --jsk-bottom: 140px;
   --jsk-gap-head: 32px;
   --jsk-photo-h: 360px;
-  --jsk-product-h: 400px;
+  --jsk-product-h: 320px;
 }
 
 html, body { margin: 0; padding: 0; background: #e9e9e5; }
@@ -274,3 +274,45 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; }
 }
 .jsk-s-band .jsk-swipe { color: var(--color-text-muted); }
 .jsk-s-band .jsk-cover-block { z-index: 1; }
+
+/* ==========================================================================
+   價錢區塊與折扣徽章(由全店五折 Post1、Post2 提煉)
+   ========================================================================== */
+:root {
+  --jsk-price: 72px;           /* 折後價 */
+  --jsk-price-was: 32px;       /* 原價(刪線) */
+  --jsk-badge: 300px;          /* 徽章直徑 */
+}
+.jsk-size-square { --jsk-price: 60px; --jsk-badge: 220px; }
+
+.jsk-price { display: flex; flex-direction: column; align-items: inherit; margin: 24px 0 0; line-height: 1.1; }
+.jsk-product .jsk-price { align-items: center; }
+.jsk-price-now {
+  font-family: var(--font-canva-display); font-weight: 900; font-size: var(--jsk-price);
+  letter-spacing: var(--social-ls-head); color: var(--social-quote-ink);
+}
+.jsk-price-was {
+  font-size: var(--jsk-price-was); color: var(--color-text-muted); margin-top: 8px;
+  text-decoration-thickness: 3px;
+}
+.jsk-product-caption { font-size: var(--social-caption); color: var(--color-text-muted); margin: 0 0 16px; letter-spacing: var(--social-ls-head); }
+
+/* 徽章:米白花形、綠字(A 款);green 樣式封面放右上,band 封面放綠色區右下,產品頁放相片面板右上 */
+.jsk-badge {
+  position: absolute; width: var(--jsk-badge); height: var(--jsk-badge); z-index: 3;
+  color: var(--social-chip-bg);
+}
+.jsk-badge .jsk-flower { position: absolute; inset: 0; width: 100%; height: 100%; }
+.jsk-badge-text {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: var(--color-primary); font-family: var(--font-canva-display); font-weight: 900; line-height: 1;
+}
+.jsk-badge-text b { font-size: calc(var(--jsk-badge) * 0.3); letter-spacing: 0; }
+.jsk-badge-text small { font-size: calc(var(--jsk-badge) * 0.14); margin-top: calc(var(--jsk-badge) * 0.04); letter-spacing: var(--social-ls-head); }
+
+.jsk-s-green.jsk-cover .jsk-badge { right: var(--social-gutter); top: calc(var(--jsk-safe-top) + var(--social-gutter)); }
+.jsk-s-band .jsk-cover-block .jsk-badge { right: var(--social-gutter); top: calc(var(--jsk-safe-top) + var(--jsk-band-h) + 16px); }
+.jsk-product-img { position: relative; }
+.jsk-product-img .jsk-badge { --jsk-badge: 200px; right: 24px; top: 24px; }
+.jsk-s-green .jsk-product-img .jsk-badge { color: var(--social-bg); }
+.jsk-s-green .jsk-product-img .jsk-badge-text { color: var(--social-ink); }

@@ -22,13 +22,15 @@ node src/render.js path/to/deck.json --output path/to/out
   "size": "post | story | square(可省略,預設 post)",
   "style": "green | band(可省略,預設 green)",
   "bandRight": "band 頁首條右邊的字,如「全店五折」(可省略)",
+  "prices": "prices.json(用了 sku 才需要)",
+  "promo": { "discount": 0.5 },
   "slides": [
     { "type": "cover", "title": "…", "subtitle": "…", "image": "可省略" },
     { "type": "title-paragraph", "title": "…", "body": "…", "image": "可省略" },
     { "type": "numbered", "title": "…", "intro": "可省略", "items": ["…", "…"], "note": "可省略" },
     { "type": "bullets", "title": "…", "items": ["…"], "note": "可省略" },
     { "type": "statement", "text": "一句話", "note": "可省略" },
-    { "type": "product", "name": "…", "meta": "HK$688 ・ 30 ml", "image": "去背圖", "body": "可省略" },
+    { "type": "product", "sku": "R1030", "name": "標題,可省略(省略用 Odoo 產品名)", "meta": "30 ml(可省略)", "image": "去背圖", "badge": true, "body": "可省略" },
     { "type": "end", "cta": "可省略,預設用定稿結尾卡原字" }
   ]
 }
@@ -53,3 +55,15 @@ node src/render.js path/to/deck.json --output path/to/out
 - `band`:米白頁首條。米白底、頂部綠色頁首條(左邊是 chip 文字,右邊是 `bandRight`)、綠色標題、淺鼠尾草面板;封面上半綠色大標題區。由全店五折 Post2 提煉,顏色全部用設計系統 token。
 - 整份用 `"style"` 設定,單頁可用 `"style"` 覆寫(例如 band 系列中插一頁 green)。
 - 每頁可加 `"footnote"`(左下小字,如「先說清楚:……」)。
+
+## 價錢與折扣徽章
+
+- 價錢不寫在內容 JSON。產品頁寫 `"sku"`,數字由 `"prices"` 價錢檔提供;價錢檔由 Hermes 從 Odoo 匯出:
+  `python3 tools/sku_prices.py R1030 R1004 -o <資料夾>/prices.json`(Hermes repo,唯讀)。
+- 價錢檔沒有該 SKU、或用了 sku 卻沒指定價錢檔,一律中止出圖,不會猜價錢。
+- `"promo": { "discount": 0.5 }`:discount 是減去的比例,0.5 = 五折(50% OFF),0.2 = 八折(20% OFF)。
+  折後價 = 原價 ×(1 − discount),非整數會四捨五入並在 report 提示。原價刪線顯示。
+- 貨幣符號預設 `$`(跟五折系列定稿),可用 `"currency": "HK$"` 改。
+- 徽章:8 瓣花形(`templates/jsk/flower.svg`,由品牌花形 PNG 量度重繪,待併入設計系統),米白底綠字。
+  有 promo 時封面自動顯示;產品頁要 `"badge": true`;任何頁 `"badge": false` 隱藏。
+  徽章字由 discount 計出,可用 `promo.badgeTop` / `promo.badgeBottom` 覆寫。

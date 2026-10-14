@@ -1,9 +1,11 @@
 <section class="jsk-frame jsk-s-{{ slideStyle }} jsk-product" data-type="product">
   {% include "slides/_chrome.html" %}
   <div class="jsk-content" data-fit>
-    {% if slide.imageUrl %}<div class="jsk-product-img"><img src="{{ slide.imageUrl }}" alt=""></div>{% endif %}
-    <h2 class="jsk-heading">{{ slide.name | br }}</h2>
+    {% if slide.imageUrl %}<div class="jsk-product-img"><img src="{{ slide.imageUrl }}" alt="">{% include "slides/_badge.html" %}</div>{% endif %}
+    {% if slide.price and slide.name %}<p class="jsk-product-caption">{{ slide.price.name }}</p>{% endif %}
+    <h2 class="jsk-heading">{{ (slide.name or slide.price.name) | br }}</h2>
     {% if slide.meta %}<p class="jsk-meta">{{ slide.meta }}</p>{% endif %}
+    {% include "slides/_price.html" %}
     {% if slide.body %}<p class="jsk-body" data-shrink>{{ slide.body | br }}</p>{% endif %}
   </div>
 </section>

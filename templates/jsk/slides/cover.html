@@ -8,6 +8,7 @@
       <h1 class="jsk-cover-title">{{ slide.title | br }}</h1>
       {% if slide.subtitle %}<p class="jsk-cover-sub" data-shrink>{{ slide.subtitle | br }}</p>{% endif %}
     </div>
+    {% include "slides/_badge.html" %}
   </div>
   {% if slide.imageUrl %}<div class="jsk-cover-lower"><div class="jsk-photo-box"><img class="jsk-photo" src="{{ slide.imageUrl }}" alt=""></div></div>
   {% else %}<div class="jsk-cover-cloud">{{ cloudSvg | safe }}</div>{% endif %}
@@ -23,6 +24,7 @@
     <h1 class="jsk-cover-title">{{ slide.title | br }}</h1>
     {% if slide.subtitle %}<p class="jsk-cover-sub">{{ slide.subtitle | br }}</p>{% endif %}
   </div>
+  {% include "slides/_badge.html" %}
   {% endif %}
   {% if slide.swipe !== false %}<div class="jsk-swipe">{{ slide.swipe or "向左滑看下去" }}</div>{% endif %}
   {% if slide.footnote %}<div class="jsk-footnote">{{ slide.footnote | br }}</div>{% endif %}

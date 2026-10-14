@@ -1,0 +1,7 @@
+{# 價錢區塊:數字全部來自價錢檔(Odoo),不可在內容 JSON 寫價錢。有折扣時原價刪線 #}
+{% if slide.price %}
+<div class="jsk-price">
+  <span class="jsk-price-now">{{ currency }}{{ slide.price.now }}</span>
+  {% if slide.price.now != slide.price.was %}<s class="jsk-price-was">{{ currency }}{{ slide.price.was }}</s>{% endif %}
+</div>
+{% endif %}

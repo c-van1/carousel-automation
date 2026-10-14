@@ -32,7 +32,7 @@ export const JSK_TYPES = {
   numbered: { required: ['items'] },
   bullets: { required: ['items'] },
   statement: { required: ['text'] },
-  product: { required: ['name'], image: true },
+  product: { required: [], image: true, oneOf: ['name', 'sku'] },
   end: { required: [] },
 };
 
@@ -49,12 +49,44 @@ function findDesignSystem() {
   return found;
 }
 
+/**
+ * 讀價錢檔。價錢不寫在內容 JSON,一律由 SKU 對 Odoo 匯出的價錢檔
+ * (tools/sku_prices.py 或 odoo.py read 的輸出,陣列或 {SKU: {...}} 皆可)。
+ */
+function loadPrices(content, contentDir) {
+  if (!content.prices) return null;
+  const abs = isAbsolute(content.prices) ? content.prices : resolve(contentDir, content.prices);
+  if (!existsSync(abs)) throw new Error(`找不到價錢檔 ${content.prices}`);
+  const raw = JSON.parse(readFileSync(abs, 'utf-8'));
+  const rows = Array.isArray(raw) ? raw : Object.entries(raw).map(([k, v]) => ({ default_code: k, ...v }));
+  return Object.fromEntries(rows.map((r) => [r.default_code, { name: r.name, listPrice: Number(r.list_price) }]));
+}
+
+/** 由 SKU 計原價與折後價;discount 0.5 = 五折。非整數會四捨五入並警告。 */
+function priceFor(sku, prices, promo, where, errors, warnings) {
+  if (!prices) { errors.push(`${where}:用了 sku "${sku}" 但內容沒有指定 "prices" 價錢檔`); return null; }
+  const p = prices[sku];
+  if (!p || !Number.isFinite(p.listPrice)) { errors.push(`${where}:價錢檔沒有 ${sku}`); return null; }
+  const out = { sku, name: p.name, was: p.listPrice, now: p.listPrice };
+  if (promo && promo.discount) {
+    const exact = p.listPrice * (1 - promo.discount);
+    out.now = Math.round(exact);
+    if (out.now !== exact) warnings.push(`${where}:${sku} 折後價 ${exact} 已四捨五入為 ${out.now}`);
+  }
+  return out;
+}
+
 /** 檢查內容、解析相片路徑。錯誤直接中止;缺相片只警告並改用無相片版本。 */
 function prepareSlides(content, contentDir, warnings) {
   if (!Array.isArray(content.slides) || content.slides.length === 0) {
     throw new Error('內容 JSON 必須有非空的 "slides" 陣列。');
   }
   const errors = [];
+  const prices = loadPrices(content, contentDir);
+  const promo = content.promo || null;
+  if (promo && !(promo.discount > 0 && promo.discount < 1)) {
+    errors.push(`promo.discount 必須是 0 至 1 之間的折扣比例(五折 = 0.5),現為 ${promo.discount}`);
+  }
   const size = content.size || 'post';
   if (!JSK_SIZES.includes(size)) errors.push(`未知尺寸 "${content.size}",可用:${JSK_SIZES.join('、')}`);
   if (content.style && !JSK_STYLES.includes(content.style)) {
@@ -76,6 +108,10 @@ function prepareSlides(content, contentDir, warnings) {
     if (spec.oneOf && !spec.oneOf.some((k) => slide[k])) {
       errors.push(`第 ${page} 頁(${slide.type}):${spec.oneOf.join(' 或 ')} 至少要有一個`);
     }
+    if (slide.sku) slide.price = priceFor(slide.sku, prices, promo, `第 ${page} 頁(${slide.type})`, errors, warnings);
+    /* 徽章:有 promo 時封面預設顯示,其他頁要 "badge": true;"badge": false 一律隱藏 */
+    slide.showBadge = Boolean(promo) && slide.badge !== false && (slide.badge === true || slide.type === 'cover');
+    if (slide.badge === true && !promo) warnings.push(`第 ${page} 頁:要求顯示徽章但內容沒有 "promo",已略過`);
     if (slide.style && !JSK_STYLES.includes(slide.style)) {
       errors.push(`第 ${page} 頁:未知樣式 "${slide.style}",可用:${JSK_STYLES.join('、')}`);
     }
@@ -114,6 +150,10 @@ function buildHtml(content, dsDir) {
     size: content.size || 'post',
     deckStyle: content.style || 'green',
     bandRight: content.bandRight || '',
+    currency: content.currency ?? '$',
+    badgeTop: content.promo ? (content.promo.badgeTop || `${Math.round(content.promo.discount * 100)}%`) : '',
+    badgeBottom: content.promo ? (content.promo.badgeBottom ?? 'OFF') : '',
+    flowerSvg: readFileSync(join(root, 'flower.svg'), 'utf-8').replace(/<!--[\s\S]*?-->\n?/, ''),
     dsUrl: pathToFileURL(dsDir).href,
     cloudSvg: existsSync(cloudPath) ? readFileSync(cloudPath, 'utf-8') : '',
     inlineStyles: readFileSync(join(root, 'jsk.css'), 'utf-8'),
