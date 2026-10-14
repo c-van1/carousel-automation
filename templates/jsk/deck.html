@@ -7,9 +7,9 @@
 <link rel="stylesheet" href="{{ dsUrl }}/styles.css">
 <style>{{ inlineStyles | safe }}</style>
 </head>
-<body>
+<body class="jsk-size-{{ size }}">
 {% for slide in slides %}
-{% set n = loop.index %}{% set total = loop.length %}
+{% set n = loop.index %}{% set slideStyle = slide.style or deckStyle %}{% set total = loop.length %}
 {% include "slides/" + slide.type + ".html" %}
 {% endfor %}
 </body>

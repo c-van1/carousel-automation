@@ -1,5 +1,11 @@
-{# 每頁共用:裝飾圓形、系列 chip、頁碼。chip 預設用整份的 series,單頁可用 chip 覆寫或設 false 隱藏 #}
-<div class="jsk-blob b1"></div><div class="jsk-blob b2"></div>
+{# 每頁共用:系列標籤、頁碼、註腳。標籤預設用整份的 series,單頁可用 chip 覆寫或設 false 隱藏。
+   green 樣式:裝飾圓形 + 左上 chip;band 樣式:頂部綠色頁首條,左標籤、右 bandRight #}
 {% set chipText = slide.chip if slide.chip is defined else series %}
+{% if slideStyle == 'band' %}
+<div class="jsk-band"><span class="jsk-band-l">{{ chipText or '' }}</span>{% if bandRight %}<span class="jsk-band-r">{{ bandRight }}</span>{% endif %}</div>
+{% else %}
+<div class="jsk-blob b1"></div><div class="jsk-blob b2"></div>
 {% if chipText %}<div class="jsk-top"><span class="jsk-chip">{{ chipText }}</span></div>{% endif %}
+{% endif %}
 {% if showPageNo %}<div class="jsk-pageno">{{ n | pad2 }} / {{ total | pad2 }}</div>{% endif %}
+{% if slide.footnote %}<div class="jsk-footnote">{{ slide.footnote | br }}</div>{% endif %}

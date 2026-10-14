@@ -18,6 +18,34 @@
   --jsk-top: 176px;            /* 內容區上緣(留位給系列 chip) */
   --jsk-bottom: 168px;         /* 內容區下緣(留位給頁碼) */
   --jsk-gap-head: 44px;        /* 標題與正文的距離 */
+  --jsk-h: var(--social-h);    /* 畫布高度,由尺寸選項切換 */
+  --jsk-safe-top: 0px;         /* 平台介面遮擋區(story 頂部頭像列、底部回覆列) */
+  --jsk-safe-bottom: 0px;
+  --jsk-band-h: 96px;          /* band 樣式頁首條高度 */
+  --jsk-photo-h: 560px;        /* 標題加內文頁的相片高度 */
+  --jsk-product-h: 620px;      /* 產品頁去背圖高度 */
+}
+
+/* ---- 尺寸:post 4:5(預設)、story 9:16、square 1:1,高度取設計系統 token ---- */
+.jsk-size-story {
+  --jsk-h: var(--social-h-reel);
+  --jsk-safe-top: 250px;
+  --jsk-safe-bottom: 340px;
+  --jsk-photo-h: 720px;
+  --jsk-product-h: 560px;
+}
+.jsk-size-square {
+  --jsk-h: var(--social-h-square);
+  --jsk-h1: 80px;
+  --jsk-h2: 58px;
+  --jsk-statement: 58px;
+  --jsk-body: 38px;
+  --jsk-item: 36px;
+  --jsk-top: 156px;
+  --jsk-bottom: 140px;
+  --jsk-gap-head: 32px;
+  --jsk-photo-h: 360px;
+  --jsk-product-h: 400px;
 }
 
 html, body { margin: 0; padding: 0; background: #e9e9e5; }
@@ -26,7 +54,7 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; }
 .jsk-frame {
   position: relative;
   width: var(--social-w);
-  height: var(--social-h);
+  height: var(--jsk-h);
   overflow: hidden;
   background: var(--social-bg);
   color: var(--social-ink);
@@ -55,18 +83,23 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; }
   border-radius: var(--social-radius-chip);
   line-height: 1.3;
 }
-.jsk-top { position: absolute; left: var(--social-gutter); top: var(--social-gutter); z-index: 2; }
+.jsk-top { position: absolute; left: var(--social-gutter); top: calc(var(--jsk-safe-top) + var(--social-gutter)); z-index: 2; }
 .jsk-pageno {
-  position: absolute; right: var(--social-gutter); bottom: 64px; z-index: 2;
+  position: absolute; right: var(--social-gutter); bottom: calc(var(--jsk-safe-bottom) + 64px); z-index: 2;
   font-size: var(--social-caption); letter-spacing: var(--social-ls-wide);
   color: var(--social-ink-dim);
+}
+/* 註腳(如「先說清楚」):左下,頁碼同一水平 */
+.jsk-footnote {
+  position: absolute; left: var(--social-gutter); right: 260px; bottom: calc(var(--jsk-safe-bottom) + 64px); z-index: 2;
+  font-size: var(--social-caption); line-height: 1.5; color: var(--social-ink-dim);
 }
 
 /* ---- 內容區:垂直置中、限制寬度 ---- */
 .jsk-content {
   position: absolute;
   left: var(--social-gutter); right: var(--social-gutter);
-  top: var(--jsk-top); bottom: var(--jsk-bottom);
+  top: calc(var(--jsk-safe-top) + var(--jsk-top)); bottom: calc(var(--jsk-safe-bottom) + var(--jsk-bottom));
   display: flex; flex-direction: column; justify-content: center;
   z-index: 1;
 }
@@ -94,7 +127,7 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; }
 .jsk-photo-box { border-radius: var(--social-radius-photo); overflow: hidden; flex: none; }
 
 /* ---- 封面 ---- */
-.jsk-cover .jsk-content { justify-content: flex-end; bottom: 200px; }
+.jsk-cover .jsk-content { justify-content: flex-end; bottom: calc(var(--jsk-safe-bottom) + 200px); }
 .jsk-cover-title {
   font-family: var(--font-canva-display); font-weight: 900;
   font-size: var(--jsk-h1); line-height: 1.2; letter-spacing: var(--social-ls-head);
@@ -102,7 +135,7 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; }
 }
 .jsk-cover-sub { font-size: var(--social-subhead); line-height: 1.45; margin: 28px 0 0; color: var(--social-ink-dim); }
 .jsk-swipe {
-  position: absolute; left: var(--social-gutter); bottom: 64px; z-index: 2;
+  position: absolute; left: var(--social-gutter); bottom: calc(var(--jsk-safe-bottom) + 64px); z-index: 2;
   font-size: var(--social-caption); letter-spacing: var(--social-ls-wide); color: var(--social-ink-dim);
 }
 .jsk-cover-cloud { position: absolute; right: -220px; top: -120px; width: 1100px; color: var(--social-blob-light); opacity: 0.6; }
@@ -112,13 +145,13 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; }
   position: absolute; left: 0; right: 0; top: 46%; bottom: 0;
   background: linear-gradient(to bottom, transparent 0%, var(--social-bg) 30%);
 }
-.jsk-cover.has-photo .jsk-content { top: 62%; bottom: 150px; justify-content: flex-start; }
+.jsk-cover.has-photo .jsk-content { top: 62%; bottom: calc(var(--jsk-safe-bottom) + 150px); justify-content: flex-start; }
 .jsk-cover.has-photo .jsk-cover-title { font-size: var(--social-h1); margin-top: 0; }
 .jsk-cover.has-photo .jsk-cover-sub { margin-top: 20px; }
 
 /* ---- 標題加內文(有相片時:相片在上,文字在下) ---- */
-.jsk-tp.has-photo .jsk-content { top: var(--social-gutter); justify-content: flex-start; }
-.jsk-tp.has-photo .jsk-photo-box { height: 560px; margin-bottom: 56px; max-width: none; }
+.jsk-tp.has-photo .jsk-content { top: calc(var(--jsk-safe-top) + var(--social-gutter)); justify-content: flex-start; }
+.jsk-tp.has-photo .jsk-photo-box { height: var(--jsk-photo-h); margin-bottom: 56px; max-width: none; }
 .jsk-tp.has-photo .jsk-heading { font-size: var(--social-h2); margin-bottom: 28px; }
 
 /* ---- 編號要點、清單 ---- */
@@ -145,17 +178,99 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; }
 .jsk-product .jsk-chip { background: var(--social-bg); color: var(--social-ink); }
 .jsk-product .jsk-pageno { color: var(--color-text-muted); }
 .jsk-product .jsk-content { align-items: center; text-align: center; }
-.jsk-product-img { width: 640px; height: 620px; display: flex; align-items: center; justify-content: center; margin-bottom: 40px; max-width: none; }
+.jsk-product-img { width: 640px; height: var(--jsk-product-h); display: flex; align-items: center; justify-content: center; margin-bottom: 40px; max-width: none; }
 .jsk-product-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .jsk-product .jsk-heading { margin-bottom: 20px; }
 .jsk-meta { font-size: var(--social-subhead); letter-spacing: var(--social-ls-head); color: var(--jsc-green-700); margin: 0; }
 .jsk-product .jsk-body { text-align: center; margin-top: 32px; color: var(--color-text); }
 
 /* ---- 結尾卡:直接用設計系統定稿圖 ---- */
-.jsk-end img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.jsk-frame.jsk-end { background: var(--social-bg); }
+.jsk-end img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
 .jsk-end-cta {
   position: absolute; left: 290px; top: 1179px; width: 500px; height: 121px;
   border: 5px solid var(--social-ink); border-radius: 61px; background: var(--jsc-green-700);
   color: var(--social-ink); display: flex; align-items: center; justify-content: center;
   font-family: var(--font-canva-display); font-size: 34px; letter-spacing: var(--social-ls-head);
 }
+
+/* ==========================================================================
+   band 樣式(米白頁首條):米白底、頂部綠色頁首條(左標籤、右活動名)、綠標題、淺鼠尾草面板。
+   由全店五折 Post2 提煉;顏色全部用設計系統 token。
+   ========================================================================== */
+.jsk-s-band { background: var(--color-bg-page); color: var(--color-text); }
+.jsk-s-band .jsk-blob { display: none; }
+
+.jsk-band, .jsk-band-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 32px;
+  font-size: var(--social-kicker); letter-spacing: var(--social-ls-wide); line-height: 1.3;
+  color: var(--color-text-on-primary);
+}
+.jsk-band {
+  position: absolute; left: 0; right: 0; top: 0; z-index: 2;
+  /* story 的頁首條向下延伸到安全區以下,字貼底,不被平台介面遮住 */
+  height: calc(var(--jsk-safe-top) + var(--jsk-band-h));
+  padding: var(--jsk-safe-top) var(--social-gutter) 0;
+  background: var(--color-primary);
+}
+.jsk-band-l { font-weight: 700; }
+.jsk-band-r { opacity: 0.9; }
+
+.jsk-s-band .jsk-content {
+  top: calc(var(--jsk-safe-top) + var(--jsk-band-h) + 72px);
+  justify-content: flex-start;
+}
+.jsk-s-band .jsk-heading { color: var(--color-primary); }
+.jsk-s-band .jsk-item { background: var(--color-secondary-tint); }
+.jsk-s-band .jsk-num { color: var(--color-primary); opacity: 1; }
+.jsk-s-band .jsk-dot { background: var(--color-primary); }
+.jsk-s-band .jsk-outro-note,
+.jsk-s-band .jsk-statement-note,
+.jsk-s-band .jsk-pageno,
+.jsk-s-band .jsk-footnote { color: var(--color-text-muted); }
+.jsk-s-band .jsk-footnote { border-top: 1px solid var(--color-border); padding-top: 20px; right: var(--social-gutter); }
+.jsk-s-band:has(.jsk-pageno) .jsk-footnote { right: 260px; }
+
+/* 一句話頁:垂直置中,綠字,下加短橫線 */
+.jsk-s-band.jsk-statement .jsk-content { justify-content: center; }
+.jsk-s-band .jsk-statement-text { color: var(--color-primary); }
+.jsk-s-band .jsk-statement-text::after {
+  content: ""; display: block; width: 72px; height: 6px; margin-top: 40px; background: var(--color-primary);
+}
+
+/* 產品頁:去背圖放在淺鼠尾草面板 */
+.jsk-s-band.jsk-product { background: var(--color-bg-page); color: var(--color-text); }
+.jsk-s-band.jsk-product .jsk-product-img {
+  width: 100%; background: var(--color-secondary-tint); border-radius: var(--social-radius-panel); padding: 48px;
+}
+.jsk-s-band.jsk-product .jsk-meta { color: var(--color-primary); text-wrap: balance; }
+
+/* 封面:上半綠色標題區,下半米白 */
+.jsk-s-band.jsk-cover { background: var(--color-bg-page); }
+.jsk-s-band .jsk-cover-block {
+  position: absolute; left: 0; right: 0; top: 0; height: 56%;
+  background: var(--color-primary); color: var(--color-text-on-primary);
+}
+.jsk-s-band .jsk-band-row {
+  position: absolute; left: var(--social-gutter); right: var(--social-gutter);
+  top: var(--jsk-safe-top); height: var(--jsk-band-h);
+}
+.jsk-s-band .jsk-cover-block .jsk-content {
+  top: calc(var(--jsk-safe-top) + var(--jsk-band-h)); bottom: 56px; justify-content: flex-end;
+}
+.jsk-s-band .jsk-cover-title { margin: 0; font-size: var(--social-display); line-height: 1.15; }
+.jsk-size-square .jsk-s-band .jsk-cover-title { font-size: var(--jsk-h1); }
+.jsk-s-band .jsk-cover-sub { color: var(--color-text-on-primary); opacity: 0.85; }
+.jsk-s-band .jsk-cover-lower {
+  position: absolute; left: var(--social-gutter); right: var(--social-gutter);
+  top: calc(56% + 56px); bottom: calc(var(--jsk-safe-bottom) + 130px);
+}
+.jsk-s-band .jsk-cover-lower .jsk-photo-box { width: 100%; height: 100%; }
+/* 無相片:雲紋貼右下角出血,不放在框內 */
+.jsk-s-band.jsk-cover:not(.has-photo) .jsk-cover-lower { display: none; }
+.jsk-s-band.jsk-cover:not(.has-photo) > .jsk-cover-cloud {
+  position: absolute; right: -260px; bottom: calc(var(--jsk-safe-bottom) - 360px); top: auto;
+  width: 1000px; color: var(--color-secondary-tint); opacity: 1;
+}
+.jsk-s-band .jsk-swipe { color: var(--color-text-muted); }
+.jsk-s-band .jsk-cover-block { z-index: 1; }

@@ -19,6 +19,9 @@ node src/render.js path/to/deck.json --output path/to/out
   "title": "#14 Argireline是什麼",
   "series": "認識護膚成分 ・ #14",
   "pageNumbers": true,
+  "size": "post | story | square(可省略,預設 post)",
+  "style": "green | band(可省略,預設 green)",
+  "bandRight": "band 頁首條右邊的字,如「全店五折」(可省略)",
   "slides": [
     { "type": "cover", "title": "…", "subtitle": "…", "image": "可省略" },
     { "type": "title-paragraph", "title": "…", "body": "…", "image": "可省略" },
@@ -35,3 +38,18 @@ node src/render.js path/to/deck.json --output path/to/out
 - 每頁可用 `"chip"` 覆寫系列標籤,`"chip": false` 隱藏。
 - 可省略的欄位沒有內容就整塊不出現;`image` 找不到時改用無相片版本並記入 `report.json`。
 - 正文放不下會自動縮字(下限 34px);仍放不下則回報超字,結束碼為 2。
+
+## 尺寸
+
+- `post`:1080×1350(4:5,預設)。
+- `story`:1080×1920(9:16),頂部 250px、底部 340px 留作平台介面安全區,文字不會放進去。
+- `square`:1080×1080(1:1),字級與相片高度自動收細。
+- 高度取自設計系統 `--social-h`、`--social-h-reel`、`--social-h-square`。
+- 設計系統只有 4:5 結尾卡;story、square 的 end 頁以綠底置中顯示並在 report 提示,自訂 `cta` 會被忽略。
+
+## 樣式
+
+- `green`:綠底、淺綠圓形裝飾、左上 chip(原有樣式)。
+- `band`:米白頁首條。米白底、頂部綠色頁首條(左邊是 chip 文字,右邊是 `bandRight`)、綠色標題、淺鼠尾草面板;封面上半綠色大標題區。由全店五折 Post2 提煉,顏色全部用設計系統 token。
+- 整份用 `"style"` 設定,單頁可用 `"style"` 覆寫(例如 band 系列中插一頁 green)。
+- 每頁可加 `"footnote"`(左下小字,如「先說清楚:……」)。

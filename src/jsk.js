@@ -19,8 +19,11 @@ import { dirname, join, resolve, isAbsolute } from 'path';
 import { homedir } from 'os';
 import { pathToFileURL } from 'url';
 
-const W = 1080;
-const H = 1350;
+/* 尺寸:實際高度由設計系統 token 決定(--social-h、--social-h-reel、--social-h-square),
+   這裡只列可選名稱;出圖時從頁面量度畫布大小 */
+export const JSK_SIZES = ['post', 'story', 'square'];
+/* 樣式:green = 綠底圓形裝飾(預設);band = 米白底綠色頁首條 */
+export const JSK_STYLES = ['green', 'band'];
 
 /* 每種版型:必填欄位、可放相片與否 */
 export const JSK_TYPES = {
@@ -52,6 +55,11 @@ function prepareSlides(content, contentDir, warnings) {
     throw new Error('內容 JSON 必須有非空的 "slides" 陣列。');
   }
   const errors = [];
+  const size = content.size || 'post';
+  if (!JSK_SIZES.includes(size)) errors.push(`未知尺寸 "${content.size}",可用:${JSK_SIZES.join('、')}`);
+  if (content.style && !JSK_STYLES.includes(content.style)) {
+    errors.push(`未知樣式 "${content.style}",可用:${JSK_STYLES.join('、')}`);
+  }
   content.slides.forEach((slide, i) => {
     const page = i + 1;
     const spec = JSK_TYPES[slide.type];
@@ -67,6 +75,14 @@ function prepareSlides(content, contentDir, warnings) {
     }
     if (spec.oneOf && !spec.oneOf.some((k) => slide[k])) {
       errors.push(`第 ${page} 頁(${slide.type}):${spec.oneOf.join(' 或 ')} 至少要有一個`);
+    }
+    if (slide.style && !JSK_STYLES.includes(slide.style)) {
+      errors.push(`第 ${page} 頁:未知樣式 "${slide.style}",可用:${JSK_STYLES.join('、')}`);
+    }
+    if (slide.type === 'end' && size !== 'post') {
+      warnings.push(`第 ${page} 頁(end):設計系統只有 4:5 結尾卡,${size} 尺寸以綠底置中顯示`
+        + (slide.cta ? ',自訂 cta 只適用 4:5,已忽略' : ''));
+      delete slide.cta;
     }
     if (slide.image) {
       if (!spec.image) {
@@ -95,6 +111,9 @@ function buildHtml(content, dsDir) {
     series: content.series || '',
     showPageNo: content.pageNumbers !== false,
     slides: content.slides,
+    size: content.size || 'post',
+    deckStyle: content.style || 'green',
+    bandRight: content.bandRight || '',
     dsUrl: pathToFileURL(dsDir).href,
     cloudSvg: existsSync(cloudPath) ? readFileSync(cloudPath, 'utf-8') : '',
     inlineStyles: readFileSync(join(root, 'jsk.css'), 'utf-8'),
@@ -146,9 +165,15 @@ export async function renderJsk(content, { contentPath, outputDir, imageFormat =
   writeFileSync(htmlPath, buildHtml(content, dsDir));
 
   const browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage({ viewport: { width: W, height: H } });
+  const page = await browser.newPage({ viewport: { width: 1080, height: 1350 } });
   await page.goto(pathToFileURL(htmlPath).href, { waitUntil: 'networkidle', timeout: 30000 });
   await page.evaluate(() => document.fonts.ready);
+  /* 畫布大小以設計系統 token 為準,量度第一頁後把視窗設成同一大小 */
+  const { W, H } = await page.evaluate(() => {
+    const f = document.querySelector('.jsk-frame').getBoundingClientRect();
+    return { W: Math.round(f.width), H: Math.round(f.height) };
+  });
+  await page.setViewportSize({ width: W, height: H });
 
   const fit = await fitPages(page);
   for (const f of fit) {
@@ -177,7 +202,7 @@ export async function renderJsk(content, { contentPath, outputDir, imageFormat =
   }
   await browser.close();
 
-  const report = { designSystem: dsDir, pages: count, files, warnings, ok: !fit.some((f) => f.status === 'overflow') };
+  const report = { designSystem: dsDir, size: `${W}x${H}`, pages: count, files, warnings, ok: !fit.some((f) => f.status === 'overflow') };
   writeFileSync(join(outputDir, 'report.json'), JSON.stringify(report, null, 2));
   if (warnings.length) {
     console.log('\n注意:');
