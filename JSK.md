@@ -5,7 +5,8 @@
 設計系統是唯一的事實來源:顏色、字型、Logo、結尾卡都從
 `Just Skincare Design System/` 讀取(位置見 `src/jsk.js` 的 `findDesignSystem`,
 可用環境變數 `JSK_DESIGN_SYSTEM` 指定)。本 repo 只存版面結構。
-`templates/jsk/jsk.css` 頂部的 `--jsk-*` 呼吸感數值待併入設計系統 `tokens/social.css`。
+字級、價錢、徽章與呼吸感版面數值都在設計系統 `tokens/social.css`(`--social-carousel-*`、`--social-price-*`、`--social-badge*`),
+徽章花形在設計系統 `assets/patterns/flower-badge.svg`。`jsk.css` 的 `--jsk-*` 只是別名;本 repo 只留版面結構(圖區高度、位置)。
 
 ```bash
 node src/render.js path/to/deck.json --output path/to/out
@@ -71,7 +72,7 @@ node src/render.js path/to/deck.json --output path/to/out
 - `"promo": { "discount": 0.5 }`:discount 是減去的比例,0.5 = 五折(50% OFF),0.2 = 八折(20% OFF)。
   折後價 = 原價 ×(1 − discount),非整數會四捨五入並在 report 提示。原價刪線顯示。
 - 貨幣符號預設 `HK$`(跟設計系統 PriceTag 一致),可用 `"currency"` 改。
-- 徽章:8 瓣花形(`templates/jsk/flower.svg`,由品牌花形 PNG 量度重繪,待併入設計系統),米白底綠字。
+- 徽章:8 瓣花形(設計系統 `assets/patterns/flower-badge.svg`),米白底綠字。
   有 promo 時封面自動顯示;產品頁要 `"badge": true`;任何頁 `"badge": false` 隱藏。
   徽章字由 discount 計出,可用 `promo.badgeTop` / `promo.badgeBottom` 覆寫。
 

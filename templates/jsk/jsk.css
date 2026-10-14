@@ -1,49 +1,45 @@
 /* 肌本 (Just Skincare) 版型樣式。
-   顏色、字型、畫布尺寸、圓角全部引用設計系統的 token(styles.css 由 deck.html 載入),
-   本檔不另抄品牌數值。
-
-   下面 :root 的 --jsk-* 是「呼吸感」版面規則(大字、垂直置中、限制文字寬度),
-   設計系統目前未有對應 token。確認效果後應併入設計系統的 tokens/social.css,
-   屆時把這一段刪掉即可,版型不用改。 */
+   顏色、字型、畫布尺寸、圓角、字級與版面數值全部引用設計系統的 token(styles.css 由 deck.html 載入),
+   本檔不另抄品牌數值。下面的 --jsk-* 只是別名,方便按尺寸切換;數值在設計系統 tokens/social.css。 */
 
 :root {
-  --jsk-h1: 92px;              /* 封面大標 */
-  --jsk-h2: 66px;              /* 內頁標題 */
-  --jsk-statement: 64px;       /* 一句話頁 */
-  --jsk-body: 42px;            /* 正文:設計系統現值 30px,放大至約 1.4 倍 */
-  --jsk-body-min: 34px;        /* 自動縮字的下限,再小就回報超字 */
-  --jsk-body-lh: 1.7;
-  --jsk-item: 40px;            /* 編號要點、清單 */
-  --jsk-measure: 900px;        /* 文字最大寬度 */
-  --jsk-top: 176px;            /* 內容區上緣(留位給系列 chip) */
-  --jsk-bottom: 168px;         /* 內容區下緣(留位給頁碼) */
-  --jsk-gap-head: 44px;        /* 標題與正文的距離 */
+  --jsk-h1: var(--social-carousel-h1);
+  --jsk-h2: var(--social-carousel-h2);
+  --jsk-statement: var(--social-carousel-statement);
+  --jsk-body: var(--social-carousel-body);
+  --jsk-body-min: var(--social-carousel-body-min);
+  --jsk-body-lh: var(--social-carousel-body-lh);
+  --jsk-item: var(--social-carousel-item);
+  --jsk-measure: var(--social-carousel-measure);
+  --jsk-top: var(--social-carousel-top);
+  --jsk-bottom: var(--social-carousel-bottom);
+  --jsk-gap-head: var(--social-carousel-gap-head);
   --jsk-h: var(--social-h);    /* 畫布高度,由尺寸選項切換 */
-  --jsk-safe-top: 0px;         /* 平台介面遮擋區(story 頂部頭像列、底部回覆列) */
+  --jsk-safe-top: 0px;         /* 平台介面遮擋區,只有 story 才有 */
   --jsk-safe-bottom: 0px;
-  --jsk-band-h: 96px;          /* band 樣式頁首條高度 */
-  --jsk-photo-h: 560px;        /* 標題加內文頁的相片高度 */
-  --jsk-product-h: 540px;      /* 產品頁去背圖高度 */
+  --jsk-band-h: var(--social-band-h);
+  --jsk-photo-h: 560px;        /* 版面內的相片、產品圖高度(按尺寸調整,屬版型結構) */
+  --jsk-product-h: 540px;
 }
 
 /* ---- 尺寸:post 4:5(預設)、story 9:16、square 1:1,高度取設計系統 token ---- */
 .jsk-size-story {
   --jsk-h: var(--social-h-reel);
-  --jsk-safe-top: 250px;
-  --jsk-safe-bottom: 340px;
+  --jsk-safe-top: var(--social-reel-safe-top);
+  --jsk-safe-bottom: var(--social-reel-safe-bottom);
   --jsk-photo-h: 720px;
   --jsk-product-h: 560px;
 }
 .jsk-size-square {
   --jsk-h: var(--social-h-square);
-  --jsk-h1: 80px;
-  --jsk-h2: 58px;
-  --jsk-statement: 58px;
-  --jsk-body: 38px;
-  --jsk-item: 36px;
-  --jsk-top: 156px;
-  --jsk-bottom: 140px;
-  --jsk-gap-head: 32px;
+  --jsk-h1: var(--social-carousel-sq-h1);
+  --jsk-h2: var(--social-carousel-sq-h2);
+  --jsk-statement: var(--social-carousel-sq-statement);
+  --jsk-body: var(--social-carousel-sq-body);
+  --jsk-item: var(--social-carousel-sq-item);
+  --jsk-top: var(--social-carousel-sq-top);
+  --jsk-bottom: var(--social-carousel-sq-bottom);
+  --jsk-gap-head: var(--social-carousel-sq-gap-head);
   --jsk-photo-h: 360px;
   --jsk-product-h: 320px;
 }
@@ -162,7 +158,7 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; } /* allow-hardcoded: �
   padding: 30px 36px; display: flex; gap: 28px; align-items: baseline;
   font-size: var(--jsk-item); line-height: 1.55;
 }
-.jsk-num { font-family: var(--font-canva-display); font-weight: 900; font-size: 52px; line-height: 1; opacity: 0.75; flex: none; }
+.jsk-num { font-family: var(--font-canva-display); font-weight: 900; font-size: var(--social-num); line-height: 1; opacity: 0.75; flex: none; }
 .jsk-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--social-ink); flex: none; transform: translateY(-6px); }
 .jsk-outro-note { font-size: var(--jsk-body); line-height: var(--jsk-body-lh); margin: 40px 0 0; color: var(--social-ink-dim); }
 
@@ -191,7 +187,7 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; } /* allow-hardcoded: �
   position: absolute; left: 290px; top: 1179px; width: 500px; height: 121px;
   border: 5px solid var(--social-ink); border-radius: 61px; background: var(--jsc-green-700);
   color: var(--social-ink); display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-canva-display); font-size: 34px; letter-spacing: var(--social-ls-head);
+  font-family: var(--font-canva-display); font-size: var(--social-cta); letter-spacing: var(--social-ls-head);
 }
 
 /* ==========================================================================
@@ -278,11 +274,11 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; } /* allow-hardcoded: �
    價錢區塊與折扣徽章(由全店五折 Post1、Post2 提煉)
    ========================================================================== */
 :root {
-  --jsk-price: 72px;           /* 折後價 */
-  --jsk-price-was: 32px;       /* 原價(刪線) */
-  --jsk-badge: 300px;          /* 徽章直徑 */
+  --jsk-price: var(--social-price);          /* 折後價 */
+  --jsk-price-was: var(--social-price-was);  /* 原價(刪線) */
+  --jsk-badge: var(--social-badge);          /* 徽章直徑 */
 }
-.jsk-size-square { --jsk-price: 60px; --jsk-badge: 220px; }
+.jsk-size-square { --jsk-price: var(--social-price-sq); --jsk-badge: var(--social-badge-sq); }
 
 .jsk-price { display: flex; flex-direction: column; align-items: inherit; margin: 24px 0 0; line-height: 1.1; }
 .jsk-product .jsk-price { align-items: center; }
@@ -312,7 +308,7 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; } /* allow-hardcoded: �
 .jsk-s-green.jsk-cover .jsk-badge { right: var(--social-gutter); top: calc(var(--jsk-safe-top) + var(--social-gutter)); }
 .jsk-s-band .jsk-cover-block .jsk-badge { right: var(--social-gutter); top: calc(var(--jsk-safe-top) + var(--jsk-band-h) + 16px); }
 .jsk-product-img { position: relative; }
-.jsk-product-img .jsk-badge { --jsk-badge: 200px; right: 24px; top: 24px; }
+.jsk-product-img .jsk-badge { --jsk-badge: var(--social-badge-sm); right: 24px; top: 24px; }
 .jsk-s-green .jsk-product-img .jsk-badge { color: var(--social-bg); }
 .jsk-s-green .jsk-product-img .jsk-badge-text { color: var(--social-ink); }
 
@@ -322,10 +318,10 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; } /* allow-hardcoded: �
 :root { --jsk-shelf-h: 300px; }
 .jsk-size-story { --jsk-shelf-h: 320px; }
 .jsk-size-square { --jsk-shelf-h: 140px; }
-.jsk-size-square .jsk-products { --jsk-price: 46px; }
+.jsk-size-square .jsk-products { --jsk-price: var(--social-price-sm); }
 .jsk-size-square .jsk-shelf { margin-top: 24px; padding-top: 28px; }
 .jsk-size-square .jsk-sum { margin-top: 20px; padding-top: 16px; }
-.jsk-products { --jsk-price: 56px; --jsk-price-was: 26px; }
+.jsk-products { --jsk-price: var(--social-price-md); --jsk-price-was: var(--social-price-was-sm); }
 
 .jsk-products .jsk-body { font-size: var(--social-body); line-height: var(--social-lh-body); }
 .jsk-shelf {
@@ -341,13 +337,13 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; } /* allow-hardcoded: �
 .jsk-shelf-name span { margin-right: 10px; }
 .jsk-join {
   flex: none; width: 64px; display: flex; align-items: center; justify-content: center;
-  font-size: 56px; color: var(--color-primary); font-weight: 700;
+  font-size: var(--social-join); color: var(--color-primary); font-weight: 700;
 }
 .jsk-s-green .jsk-join { color: var(--social-ink); }
 .jsk-step {
   position: absolute; top: -12px; width: 52px; height: 52px; border-radius: 50%;
   background: var(--color-primary); color: var(--color-text-on-primary);
-  display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; z-index: 1;
+  display: flex; align-items: center; justify-content: center; font-size: var(--social-step-dot); font-weight: 700; z-index: 1;
 }
 .jsk-s-green .jsk-step { background: var(--social-ink); color: var(--social-bg); }
 
@@ -355,8 +351,8 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; } /* allow-hardcoded: �
 .jsk-shelf-price { flex: 1 1 0; min-width: 0; display: flex; justify-content: center; }
 .jsk-join-spacer { visibility: hidden; }
 .jsk-shelf-price .jsk-price { align-items: center; }
-.jsk-n-3 .jsk-shelf-price, .jsk-n-4 .jsk-shelf-price { --jsk-price: 46px; --jsk-price-was: var(--social-caption); }
-.jsk-n-5 .jsk-shelf-price { --jsk-price: 40px; --jsk-price-was: var(--social-caption); }
+.jsk-n-3 .jsk-shelf-price, .jsk-n-4 .jsk-shelf-price { --jsk-price: var(--social-price-sm); --jsk-price-was: var(--social-caption); }
+.jsk-n-5 .jsk-shelf-price { --jsk-price: var(--social-price-xs); --jsk-price-was: var(--social-caption); }
 .jsk-n-5 .jsk-shelf { padding-left: 16px; padding-right: 16px; }
 .jsk-n-5 .jsk-shelf-prices { padding: 0 16px; }
 
@@ -396,9 +392,9 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; } /* allow-hardcoded: �
 /* ==========================================================================
    組合頁(bundle)
    ========================================================================== */
-:root { --jsk-bundle-h: 460px; --jsk-bundle-price: 120px; }
+:root { --jsk-bundle-h: 460px; --jsk-bundle-price: var(--social-price-hero); }
 .jsk-size-story { --jsk-bundle-h: 440px; }
-.jsk-size-square { --jsk-bundle-h: 260px; --jsk-bundle-price: 84px; }
+.jsk-size-square { --jsk-bundle-h: 260px; --jsk-bundle-price: var(--social-price-hero-sq); }
 .jsk-bundle .jsk-content { align-items: center; text-align: center; }
 .jsk-bundle .jsk-body { font-size: var(--social-body); line-height: var(--social-lh-body); }
 .jsk-bundle-stage {
@@ -411,7 +407,7 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; } /* allow-hardcoded: �
 .jsk-bundle-item { height: 100%; display: flex; align-items: flex-end; margin: 0 -6px; }
 .jsk-bundle-item img { height: 100%; width: auto; object-fit: contain; }
 .jsk-bundle-item:nth-child(2) { z-index: 1; }
-.jsk-bundle-stage .jsk-badge { --jsk-badge: 200px; right: 24px; top: 24px; }
+.jsk-bundle-stage .jsk-badge { --jsk-badge: var(--social-badge-sm); right: 24px; top: 24px; }
 .jsk-bundle-names { margin: 24px 0 0; font-size: var(--social-caption); color: var(--color-text-muted); letter-spacing: var(--social-ls-head); }
 .jsk-s-green .jsk-bundle-names { color: var(--social-ink-dim); }
 .jsk-bundle-price { display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; gap: 8px 20px; margin-top: 12px; max-width: none; }
@@ -439,7 +435,7 @@ html, body { margin: 0; padding: 0; background: #e9e9e5; } /* allow-hardcoded: �
 .jsk-step-no {
   flex: none; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
   background: var(--color-primary); color: var(--color-text-on-primary);
-  font-family: var(--font-canva-display); font-weight: 900; font-size: 34px;
+  font-family: var(--font-canva-display); font-weight: 900; font-size: var(--social-step-no);
 }
 .jsk-s-green .jsk-step-no { background: var(--social-ink); color: var(--social-bg); }
 .jsk-step-copy { flex: 1; min-width: 0; padding-top: 6px; }

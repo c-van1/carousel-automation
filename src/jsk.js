@@ -191,6 +191,13 @@ function prepareSlides(content, contentDir, warnings) {
   if (errors.length) throw new Error('內容有誤,未出圖:\n  ' + errors.join('\n  '));
 }
 
+/** 讀設計系統資產;缺了直接報錯,不在本 repo 留後備。 */
+function readDsAsset(dsDir, rel) {
+  const p = join(dsDir, rel);
+  if (!existsSync(p)) throw new Error(`設計系統缺少 ${rel}(${dsDir})`);
+  return readFileSync(p, 'utf-8');
+}
+
 function buildHtml(content, dsDir) {
   const root = resolve(dirname(new URL(import.meta.url).pathname), '..', 'templates', 'jsk');
   const env = nunjucks.configure(root, { autoescape: true });
@@ -209,7 +216,7 @@ function buildHtml(content, dsDir) {
     currency: content.currency ?? 'HK$',
     badgeTop: content.promo ? (content.promo.badgeTop || `${Math.round(content.promo.discount * 100)}%`) : '',
     badgeBottom: content.promo ? (content.promo.badgeBottom ?? 'OFF') : '',
-    flowerSvg: readFileSync(join(root, 'flower.svg'), 'utf-8').replace(/<!--[\s\S]*?-->\n?/, ''),
+    flowerSvg: readDsAsset(dsDir, 'assets/patterns/flower-badge.svg').replace(/<!--[\s\S]*?-->\n?/, ''),
     dsUrl: pathToFileURL(dsDir).href,
     cloudSvg: existsSync(cloudPath) ? readFileSync(cloudPath, 'utf-8') : '',
     inlineStyles: readFileSync(join(root, 'jsk.css'), 'utf-8'),
