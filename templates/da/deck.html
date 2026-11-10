@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>{{ title }}</title>
+{# The design system is the single source of truth: tokens, fonts and logos are read from it #}
+<link rel="stylesheet" href="{{ dsUrl }}/styles.css">
+<style>{{ inlineStyles | safe }}</style>
+</head>
+<body>
+{% for slide in slides %}
+{% set n = loop.index %}{% set total = loop.length %}
+{% include "slides/" + slide.type + ".html" %}
+{% endfor %}
+</body>
+</html>

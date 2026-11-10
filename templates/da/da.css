@@ -1,0 +1,181 @@
+/* Dodgeball Australia carousel layout.
+   Colours, fonts, scrims and border widths all come from the DA design system (styles.css, loaded by deck.html).
+   The design system ships web-scale type only (h1 = 40px), so the social canvas scale is defined here as --da-*.
+   If the design system gains social tokens, alias them here instead (as jsk.css does with --social-*). */
+
+:root {
+  --da-w: 1080px;
+  --da-h: 1350px;
+  --da-pad: 80px;            /* outer margin; keeps the lockup clear space and IG crop safe */
+  --da-top: 220px;           /* content starts below the logo row */
+  --da-bottom: 170px;        /* content stops above the footer rule */
+  --da-logo-h: 64px;         /* horizontal lockup ≈ 268px wide, well above the 120px minimum */
+
+  --da-cover-h1: 150px;
+  --da-h2: 92px;
+  --da-label: 26px;
+  --da-body: 40px;
+  --da-item: 42px;
+  --da-note: 30px;
+  --da-min-text: 24px;       /* nothing on the canvas smaller than this */
+}
+
+html, body { margin: 0; padding: 0; background: var(--da-stone); }
+* { box-sizing: border-box; }
+
+.da-frame {
+  position: relative;
+  width: var(--da-w);
+  height: var(--da-h);
+  overflow: hidden;
+  font-family: var(--font-body);
+  page-break-after: always;
+}
+.da-frame:last-child { page-break-after: auto; }
+
+/* ---- Themes: at most one or two grounds per page (white or black, optionally green) ---- */
+.da-t-green { background: var(--da-green); color: var(--da-white); }
+.da-t-black { background: var(--da-black); color: var(--da-white); }
+.da-t-white { background: var(--da-white); color: var(--da-black); }
+.da-t-white .da-body, .da-t-white .da-items { color: var(--text-body); }
+
+/* ---- Chrome: lockup pinned top-left, footer rule with series label and page number ---- */
+.da-logo { position: absolute; top: var(--da-pad); left: var(--da-pad); height: var(--da-logo-h); z-index: 3; }
+.da-footer {
+  position: absolute; left: var(--da-pad); right: var(--da-pad); bottom: var(--da-pad); z-index: 3;
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 20px; border-top: var(--border-width-hairline) solid currentColor;
+  font-family: var(--font-display); font-weight: var(--weight-heading);
+  font-size: var(--da-label); letter-spacing: var(--tracking-label); text-transform: uppercase;
+}
+
+/* ---- Content box ---- */
+.da-content {
+  position: absolute; left: var(--da-pad); right: var(--da-pad);
+  top: var(--da-top); bottom: var(--da-bottom);
+  /* Top-anchored, not centred: the label and gold rule must sit at the same height on every slide */
+  display: flex; flex-direction: column; justify-content: flex-start; z-index: 2;
+  overflow: hidden;
+}
+.da-label {
+  font-size: var(--da-label);
+  margin-bottom: 28px;
+}
+.da-rule { width: 120px; height: 0; border-top: var(--border-width-heavy) solid var(--da-gold); margin-bottom: 40px; }
+.da-t-white .da-label { color: var(--da-green); }
+.da-t-green .da-label, .da-t-black .da-label { color: var(--da-gold); }
+
+.da-title {
+  margin: 0;
+  font-family: var(--font-display); font-weight: var(--weight-display);
+  font-size: var(--da-h2); line-height: var(--leading-display); letter-spacing: var(--tracking-display);
+  text-transform: uppercase; color: inherit;
+}
+.da-stop { color: var(--da-gold); }
+.da-t-white .da-stop { color: var(--da-green); }   /* gold on white fails contrast; green carries the device on light grounds */
+
+.da-body {
+  margin: 44px 0 0;
+  font-size: var(--da-body); line-height: 1.45; max-width: 880px;
+}
+.da-body + .da-body { margin-top: 28px; }
+.da-note {
+  margin: 44px 0 0;
+  font-size: var(--da-note); line-height: 1.4; max-width: 880px;
+}
+.da-note em { font-style: italic; }
+
+/* ---- Cover ---- */
+.da-cover .da-content { justify-content: flex-end; }
+.da-cover .da-title { font-size: var(--da-cover-h1); }
+.da-cover .da-body { margin-top: 36px; }
+.da-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.da-photo-band {
+  /* Landscape photo across the slide on the black ground; width, left and top come from "photo" (see da.js) */
+  right: auto; bottom: auto; height: auto; object-fit: fill;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 90px, black calc(100% - 210px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, black 90px, black calc(100% - 210px), transparent 100%);
+}
+.da-scrim { position: absolute; inset: 0; background: var(--scrim-bottom), var(--scrim-full); z-index: 1; }
+
+/* ---- Bullets: gold square markers, hairline separators ---- */
+.da-items { list-style: none; margin: 48px 0 0; padding: 0; }
+.da-items li {
+  display: flex; gap: 32px; align-items: baseline;
+  padding: 26px 0; border-top: var(--border-width-hairline) solid var(--border-on-inverse);
+  font-size: var(--da-item); line-height: 1.25; font-weight: var(--weight-body-strong);
+}
+.da-items li:last-child { border-bottom: var(--border-width-hairline) solid var(--border-on-inverse); }
+.da-t-white .da-items li { border-color: var(--border-hairline); }
+.da-items li::before {
+  content: ""; flex: none; width: 18px; height: 18px; background: var(--da-gold);
+  transform: translateY(-4px);
+}
+
+/* ---- CTA: QR on a white tile (QR must stay black on white to scan), stat line ---- */
+.da-cta-row { display: flex; gap: 56px; align-items: center; margin-top: 56px; }
+.da-qr { flex: none; width: 360px; height: 360px; padding: 28px; background: var(--da-white); border-radius: var(--radius-card, 4px); }
+.da-qr svg { display: block; width: 100%; height: 100%; }
+.da-cta-side { display: flex; flex-direction: column; gap: 28px; }
+.da-stat {
+  font-family: var(--font-display); font-weight: var(--weight-display);
+  font-size: 64px; line-height: var(--leading-display); letter-spacing: var(--tracking-display); text-transform: uppercase;
+}
+.da-stat small {
+  display: block; margin-bottom: 14px;
+  font-size: var(--da-label); font-weight: var(--weight-heading); letter-spacing: var(--tracking-label);
+}
+.da-cta-side .da-body { margin: 0; font-size: 34px; }
+
+/* ---- Pride in Sport campaign frame ----
+   Rainbow stripes top (red, orange, yellow) and bottom (blue, violet); the DA green field stands in for
+   the flag's green stripe so the master-brand colour carries the type. Flag tones are campaign colours,
+   not DA tokens — the design system has no Pride in Sport palette. */
+:root {
+  --pride-red: #e5664a;     /* allow-hardcoded: Pride flag campaign colour */
+  --pride-orange: #efa33f;  /* allow-hardcoded: Pride flag campaign colour */
+  --pride-yellow: #f3e35a;  /* allow-hardcoded: Pride flag campaign colour */
+  --pride-blue: #5b8bc8;    /* allow-hardcoded: Pride flag campaign colour */
+  --pride-violet: #946eb0;  /* allow-hardcoded: Pride flag campaign colour */
+  --pride-stripe: 56px;
+}
+.da-t-pride {
+  background: var(--da-green); color: var(--da-white);
+  --da-field-top: calc(var(--pride-stripe) * 3);
+  --da-field-bottom: calc(var(--pride-stripe) * 2);
+}
+.da-stripes { position: absolute; left: 0; right: 0; z-index: 1; display: flex; flex-direction: column; }
+.da-stripes span { display: block; height: var(--pride-stripe); }
+.da-stripes-top { top: 0; }
+.da-stripes-bottom { bottom: 0; }
+.s-red { background: var(--pride-red); } .s-orange { background: var(--pride-orange); } .s-yellow { background: var(--pride-yellow); }
+.s-blue { background: var(--pride-blue); } .s-violet { background: var(--pride-violet); }
+
+.da-t-pride .da-logo { top: calc(var(--da-field-top) + 52px); }
+.da-t-pride .da-footer { bottom: calc(var(--da-field-bottom) + 44px); }
+.da-t-pride .da-content { top: calc(var(--da-field-top) + 152px); bottom: calc(var(--da-field-bottom) + 118px); }
+.da-t-pride .da-label, .da-t-pride .da-stop { color: var(--da-gold); }
+
+/* Pride cover: centred headline, partner logo row at the foot of the field */
+.da-t-pride.da-cover .da-content {
+  top: calc(var(--da-field-top) + 64px); bottom: calc(var(--da-field-bottom) + 300px);
+  justify-content: center; align-items: center; text-align: center;
+}
+.da-t-pride.da-cover .da-title { font-size: 88px; line-height: 1.02; }
+.da-t-pride.da-cover .da-body {
+  margin-top: 56px; max-width: none;
+  font-family: var(--font-display); font-weight: var(--weight-display); font-size: 48px; text-transform: uppercase; line-height: 1.1;
+}
+.da-partners {
+  position: absolute; left: var(--da-pad); right: var(--da-pad); bottom: calc(var(--da-field-bottom) + 56px); height: 220px; z-index: 2;
+  display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); align-items: center; justify-items: center; gap: 40px;
+}
+.da-partners img { max-width: 100%; max-height: 200px; object-fit: contain; }
+.da-partner-ph {
+  width: 260px; height: 160px; display: grid; place-items: center; text-align: center; padding: 16px;
+  border: var(--border-width-frame) dashed var(--border-on-inverse);
+  font-family: var(--font-display); font-weight: var(--weight-heading); font-size: var(--da-min-text);
+  letter-spacing: var(--tracking-label); text-transform: uppercase;
+}
+.da-t-pride .da-items { margin-top: 40px; }
+.da-t-pride .da-items li { padding: 18px 0; }

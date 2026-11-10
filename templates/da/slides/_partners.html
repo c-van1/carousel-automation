@@ -1,0 +1,8 @@
+{# DA stacked lockup in the centre, partners either side (first partner left, second right) #}
+{% set first = partners[0] if partners.length > 0 else null %}
+{% set rest = partners.slice(1) if partners.length > 1 else [] %}
+<div class="da-partners" style="--cols: {{ partners.length + 1 }}">
+  {% if first %}{% set p = first %}{% include "slides/_partner.html" %}{% endif %}
+  <img src="{{ dsUrl }}/assets/logos/da-lockup-stacked-white.png" alt="Dodgeball Australia" style="max-height: 210px">
+  {% for p in rest %}{% include "slides/_partner.html" %}{% endfor %}
+</div>

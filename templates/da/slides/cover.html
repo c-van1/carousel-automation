@@ -1,0 +1,10 @@
+<section class="da-frame da-cover da-t-{{ slide.theme }}{% if slide.imageUrl %} has-photo{% endif %}" data-type="cover">
+  {% if slide.imageUrl %}<img class="da-photo{% if slide.photoMode == 'band' %} da-photo-band{% endif %}" src="{{ slide.imageUrl }}" alt="" style="{{ slide.photoStyle }}"><div class="da-scrim"></div>{% endif %}
+  {% include "slides/_chrome.html" %}
+  <div class="da-content" data-fit data-over-photo>
+    {% if slide.theme != 'pride' %}{% include "slides/_head.html" %}{% endif %}
+    <h1 class="da-title">{{ slide.title | stop }}</h1>
+    {% if slide.subtitle %}<p class="da-body">{{ slide.subtitle | br }}</p>{% endif %}
+  </div>
+  {% if slide.theme == 'pride' %}{% include "slides/_partners.html" %}{% endif %}
+</section>

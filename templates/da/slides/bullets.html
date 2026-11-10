@@ -1,0 +1,9 @@
+<section class="da-frame da-t-{{ slide.theme }}" data-type="bullets">
+  {% include "slides/_chrome.html" %}
+  <div class="da-content" data-fit>
+    {% include "slides/_head.html" %}
+    <h2 class="da-title">{{ slide.title | stop }}</h2>
+    <ul class="da-items">{% for item in slide.items %}<li>{{ item }}</li>{% endfor %}</ul>
+    {% if slide.note %}<p class="da-note">{{ slide.note | br }}</p>{% endif %}
+  </div>
+</section>

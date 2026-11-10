@@ -1,0 +1,15 @@
+<section class="da-frame da-t-{{ slide.theme }}" data-type="cta">
+  {% include "slides/_chrome.html" %}
+  <div class="da-content" data-fit>
+    {% include "slides/_head.html" %}
+    <h2 class="da-title">{{ slide.title | stop }}</h2>
+    <div class="da-cta-row">
+      {% if slide.qrSvg %}<div class="da-qr">{{ slide.qrSvg | safe }}</div>{% endif %}
+      <div class="da-cta-side">
+        {% if slide.stat %}<div class="da-stat"><small>{{ slide.stat.label }}</small>{{ slide.stat.value | stop }}</div>{% endif %}
+        {% if slide.body %}<p class="da-body">{{ slide.body | br }}</p>{% endif %}
+      </div>
+    </div>
+    {% if slide.note %}<p class="da-note">{{ slide.note | br }}</p>{% endif %}
+  </div>
+</section>

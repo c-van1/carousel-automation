@@ -18,6 +18,7 @@
   "license": "MIT",
   "dependencies": {
     "nunjucks": "^3.2.4",
-    "playwright": "1.62.1"
+    "playwright": "1.62.1",
+    "qrcode": "^1.5.4"
   }
 }

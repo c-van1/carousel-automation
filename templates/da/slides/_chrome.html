@@ -1,0 +1,14 @@
+{% if slide.theme == 'pride' %}
+<div class="da-stripes da-stripes-top"><span class="s-red"></span><span class="s-orange"></span><span class="s-yellow"></span></div>
+<div class="da-stripes da-stripes-bottom"><span class="s-blue"></span><span class="s-violet"></span></div>
+{% endif %}
+{# Lockup pinned top-left, colourway per brand guide pp. 5, 10, 11: black text on white, full colour on solid black,
+   all white on green and photos, where the emblem's green segments would otherwise disappear.
+   The pride cover carries the stacked lockup in its partner row instead. #}
+{% if not (slide.theme == 'pride' and slide.type == 'cover') %}
+{% if slide.theme == 'white' %}{% set logoVariant = 'black-text' %}{% elif slide.theme == 'black' and not slide.imageUrl %}{% set logoVariant = 'white-text' %}{% else %}{% set logoVariant = 'white' %}{% endif %}
+<img class="da-logo" src="{{ dsUrl }}/assets/logos/da-lockup-horizontal-{{ logoVariant }}.png" alt="Dodgeball Australia">
+{% endif %}
+{% if (series or showPageNo) and not (slide.theme == 'pride' and slide.type == 'cover') %}
+<div class="da-footer"><span>{{ series }}</span>{% if showPageNo %}<span>{{ n | pad2 }} / {{ total | pad2 }}</span>{% endif %}</div>
+{% endif %}

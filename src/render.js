@@ -19,6 +19,7 @@ import { readFileSync, mkdirSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
 import { renderJsk } from './jsk.js';
+import { renderDa } from './da.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -264,6 +265,10 @@ async function main() {
   const raw = JSON.parse(readFileSync(contentPath, 'utf-8'));
   if (raw.brand === 'jsk') {
     await renderJsk(raw, { contentPath, outputDir, imageFormat, noPdf });
+    return;
+  }
+  if (raw.brand === 'da') {
+    await renderDa(raw, { contentPath, outputDir, imageFormat, noPdf });
     return;
   }
 
