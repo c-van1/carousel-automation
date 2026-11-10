@@ -6,7 +6,8 @@
   "main": "src/render.js",
   "scripts": {
     "render": "node src/render.js",
-    "render:example": "node src/render.js content/example.json"
+    "render:example": "node src/render.js content/example.json",
+    "studio": "node src/studio.js"
   },
   "keywords": [
     "carousel",

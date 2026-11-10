@@ -52,6 +52,14 @@ A cover photo can take a `"photo"` block. The limits keep the photo covering its
 - `band`: a landscape photo across the slide on black, faded top and bottom. `zoom` is width × canvas; `x` shifts it as a % of canvas width (limited so no black edge shows); `y` is the top offset in px.
 - `brightness` 0.7–1.4. Without `"photo"`, the older `"focus"` (object-position) still works.
 
+## Studio (control panel)
+
+```bash
+npm run studio -- path/to/post.json
+```
+
+Open http://localhost:4321 and you get sliders for photo framing, editable copy and slide grounds (white, black, green), with a live preview. Logo colourway, fonts, sizes, colours and margins stay locked. **Save** writes the JSON (the first save keeps `post.json.bak`). **Save & render** also writes `out/` and shows the da-design-check result; it only shows green when both the renderer and the check pass. The studio listens on 127.0.0.1 only and can write only the file it was opened with.
+
 ## da-design-check
 
 Every DA render runs the `design-check` skill with the DA profile and saves `design-check.json` beside the images. Must-fix issues set `ok: false` and exit code 2, but the images are still written. If the skill isn't installed, the render finishes with a "did not run" warning, which is not a pass. Set `DESIGN_CHECK_SCRIPT` to use a different copy.

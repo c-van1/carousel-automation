@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DA studio</title>
+<style>
+  /* Studio chrome only. The slides themselves use the DA templates and design system. */
+  :root { --bg: #f4f4f2; --panel: #fff; --ink: #1c1c1c; --muted: #6b6b6b; --line: #dcdcd8; --accent: #014534; --warn: #8a5a00; --bad: #a3261b; --good: #1d6b3a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
+  header { position: sticky; top: 0; z-index: 5; display: flex; gap: 12px; align-items: center; padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 15px; margin: 0; }
+  header .file { color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .status { font-size: 12px; color: var(--muted); }
+  .status.dirty { color: var(--warn); }
+  button { font: inherit; padding: 7px 12px; border: 1px solid var(--accent); background: var(--panel); color: var(--accent); border-radius: 4px; cursor: pointer; }
+  button.primary { background: var(--accent); color: #fff; }
+  button:disabled { opacity: .5; cursor: default; }
+  main { display: grid; grid-template-columns: minmax(320px, 420px) 1fr; gap: 16px; padding: 16px; align-items: start; }
+  .cards { display: flex; flex-direction: column; gap: 10px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+  .card.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .card summary { padding: 10px 12px; cursor: pointer; font-weight: 600; display: flex; justify-content: space-between; }
+  .card summary small { color: var(--muted); font-weight: 400; }
+  .card .body { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 10px; }
+  label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+  input[type=text], textarea, select { font: inherit; font-size: 14px; color: var(--ink); padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; background: #fff; width: 100%; }
+  textarea { resize: vertical; min-height: 60px; }
+  fieldset { border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 8px; }
+  legend { font-size: 12px; color: var(--muted); padding: 0 4px; }
+  .range { display: grid; grid-template-columns: 76px 1fr 52px; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .range output { text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .locked { font-size: 12px; color: var(--muted); }
+  .stage { position: sticky; top: 64px; display: flex; flex-direction: column; gap: 10px; }
+  .preview { background: #d9d9d6; border-radius: 6px; padding: 12px; height: calc(100vh - 200px); overflow: auto; }
+  iframe { width: 540px; border: 0; display: block; margin: 0 auto; background: transparent; }
+  .msgs { font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
+  .msgs .warn { color: var(--warn); } .msgs .bad { color: var(--bad); } .msgs .good { color: var(--good); }
+  pre { white-space: pre-wrap; font-size: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 8px; margin: 0; max-height: 220px; overflow: auto; }
+  .thumbs { display: flex; gap: 6px; overflow-x: auto; }
+  .thumbs img { height: 120px; border: 1px solid var(--line); }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } .stage { position: static; } iframe { width: 100%; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>DA studio</h1>
+  <span class="file" id="file"></span>
+  <span class="status" id="status">Loading…</span>
+  <button id="save">Save</button>
+  <button id="render" class="primary">Save &amp; render</button>
+</header>
+<main>
+  <div class="cards" id="cards"></div>
+  <div class="stage">
+    <div class="preview"><iframe id="frame" title="Slide preview"></iframe></div>
+    <div class="msgs" id="msgs"></div>
+    <div id="result"></div>
+  </div>
+</main>
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const h = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k.startsWith('on')) e.addEventListener(k.slice(2), v); else if (v !== undefined && v !== null) e.setAttribute(k, v); } e.append(...kids.flat()); return e; };
+let deck, photos = [], limits, dirty = false, active = 0, timer;
+
+const setStatus = (text, cls = '') => { const s = $('#status'); s.textContent = text; s.className = `status ${cls}`; };
+const changed = () => { dirty = true; setStatus('Unsaved changes', 'dirty'); clearTimeout(timer); timer = setTimeout(preview, 200); };
+window.addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+const OFFLINE = 'The studio server is not running, so changes cannot be previewed or saved. Start it again with "npm run studio -- <post.json>" in Terminal, then reload this page. Your edits on this page are kept until you reload.';
+async function api(path, body) {
+  let r;
+  try {
+    r = await fetch(path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {});
+  } catch {
+    setStatus('Server stopped', 'dirty');
+    throw new Error(OFFLINE);
+  }
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || r.statusText);
+  return data;
+}
+
+function textField(slide, key, name, multiline = false) {
+  const el = h(multiline ? 'textarea' : 'input', multiline ? { rows: 2 } : { type: 'text' });
+  el.value = slide[key] ?? '';
+  el.addEventListener('input', () => { if (el.value) slide[key] = el.value; else delete slide[key]; changed(); });
+  return h('label', {}, name, el);
+}
+function listField(slide, key, name, sep, hint) {
+  const el = h('textarea', { rows: 4 });
+  const val = slide[key];
+  el.value = Array.isArray(val) ? val.join(sep) : val ?? '';
+  el.addEventListener('input', () => { slide[key] = el.value.split(sep === '\n' ? /\n/ : /\n\s*\n/).map((s) => s.trim()).filter(Boolean); changed(); });
+  return h('label', {}, `${name} (${hint})`, el);
+}
+function range(name, value, min, max, step, onInput, fmt = (v) => v) {
+  const input = h('input', { type: 'range', min, max, step, value });
+  const out = h('output', {}, fmt(value));
+  input.addEventListener('input', () => { out.textContent = fmt(+input.value); onInput(+input.value); });
+  return { el: h('div', { class: 'range' }, name, input, out), input, out };
+}
+
+function photoControls(slide, rebuild) {
+  const set = h('fieldset', {}, h('legend', {}, 'Photo'));
+  const pick = h('select', {}, h('option', { value: '' }, 'No photo'), photos.map((p) => h('option', { value: p }, p)));
+  pick.value = slide.image || '';
+  pick.addEventListener('change', () => { if (pick.value) slide.image = pick.value; else { delete slide.image; delete slide.photo; } changed(); rebuild(); });
+  set.append(h('label', {}, 'Image', pick));
+  if (!slide.image) return set;
+  const p = slide.photo = slide.photo || { mode: 'fill', zoom: 1, x: 0, y: 0, brightness: 1 };
+  const mode = h('select', {}, h('option', { value: 'fill' }, 'Fill the slide'), h('option', { value: 'band' }, 'Band on black (landscape photos)'));
+  mode.value = p.mode || 'fill';
+  mode.addEventListener('change', () => { p.mode = mode.value; p.x = 0; p.y = p.mode === 'band' ? 110 : 0; changed(); rebuild(); });
+  set.append(h('label', {}, 'Layout', mode));
+  const band = p.mode === 'band';
+  const maxShift = () => Math.max(0, ((p.zoom || 1) * 1080 - 1080) / 2 / 1080 * 100);
+  const x = range(band ? 'Left / right' : 'Pan left/right', p.x ?? 0, band ? -maxShift() : limits.pan[0], band ? maxShift() : limits.pan[1], 0.5, (v) => { p.x = v; changed(); }, (v) => (band ? `${v}%` : v));
+  const zoom = range('Zoom', p.zoom ?? 1, limits.zoom[0], limits.zoom[1], 0.01, (v) => {
+    p.zoom = v;
+    if (band) { const m = maxShift(); x.input.min = -m; x.input.max = m; if (Math.abs(p.x) > m) { p.x = Math.sign(p.x) * m; x.input.value = p.x; x.out.textContent = `${p.x.toFixed(1)}%`; } }
+    changed();
+  }, (v) => `${v.toFixed(2)}×`);
+  const y = range(band ? 'Top' : 'Pan up/down', p.y ?? (band ? 110 : 0), band ? limits.bandTop[0] : limits.pan[0], band ? limits.bandTop[1] : limits.pan[1], band ? 1 : 0.5, (v) => { p.y = v; changed(); }, (v) => (band ? `${v}px` : v));
+  const bright = range('Brightness', p.brightness ?? 1, limits.brightness[0], limits.brightness[1], 0.01, (v) => { p.brightness = v; changed(); }, (v) => v.toFixed(2));
+  const reset = h('button', { type: 'button', onclick: () => { slide.photo = { mode: p.mode, zoom: 1, x: 0, y: band ? 110 : 0, brightness: 1 }; changed(); rebuild(); } }, 'Reset framing');
+  set.append(zoom.el, x.el, y.el, bright.el, h('div', { class: 'row' }, reset));
+  return set;
+}
+
+function card(slide, i) {
+  const wrap = h('details', { class: `card${i === active ? ' active' : ''}`, open: i === active ? '' : null });
+  const body = h('div', { class: 'body' });
+  const build = () => {
+    body.replaceChildren();
+    if (slide.theme !== 'pride') {
+      const theme = h('select', {}, ['white', 'black', 'green'].map((t) => h('option', { value: t }, t[0].toUpperCase() + t.slice(1))));
+      theme.value = slide.theme || (slide.type === 'cover' || slide.type === 'cta' ? 'black' : slide.type === 'bullets' ? 'green' : 'white');
+      theme.addEventListener('change', () => { slide.theme = theme.value; changed(); });
+      body.append(h('label', {}, 'Ground', theme));
+    }
+    body.append(textField(slide, 'label', 'Label'), textField(slide, 'title', 'Headline (new line = line break)', true));
+    if (slide.type === 'cover') body.append(textField(slide, 'subtitle', 'Subtitle', true), photoControls(slide, build));
+    if (slide.type === 'title-paragraph') body.append(listField(slide, 'body', 'Paragraphs', '\n\n', 'blank line between'));
+    if (slide.type === 'bullets') body.append(listField(slide, 'items', 'Points', '\n', 'one per line'));
+    if (slide.type === 'bullets' || slide.type === 'title-paragraph' || slide.type === 'cta') body.append(textField(slide, 'note', 'Note', true));
+    if (slide.type === 'cta') body.append(textField(slide, 'body', 'Body', true));
+    body.append(h('p', { class: 'locked' }, 'Locked by the brand rules: logo, fonts, sizes, colours, margins.'));
+  };
+  build();
+  wrap.append(h('summary', {}, `${String(i + 1).padStart(2, '0')} · ${slide.type}`, h('small', {}, (slide.title || '').split('\n')[0].slice(0, 28))), body);
+  wrap.addEventListener('toggle', () => { if (wrap.open) { active = i; document.querySelectorAll('.card').forEach((c, k) => c.classList.toggle('active', k === i)); scrollToSlide(); } });
+  return wrap;
+}
+
+function scrollToSlide() {
+  const doc = $('#frame').contentDocument;
+  const el = doc && doc.querySelectorAll('.da-frame')[active];
+  if (el) $('.preview').scrollTo({ top: el.offsetTop * 0.5, behavior: 'smooth' });
+}
+
+async function preview() {
+  try {
+    const { html, warnings } = await api('/api/preview', { content: deck });
+    const f = $('#frame');
+    const top = $('.preview').scrollTop;
+    f.onload = () => {
+      const d = f.contentDocument;
+      f.style.height = `${d.documentElement.scrollHeight * 0.5}px`;
+      $('.preview').scrollTop = top;
+    };
+    f.srcdoc = html.replace('</head>', '<style>html{zoom:.5} body{background:transparent} .da-frame{margin:0 0 24px}</style></head>');
+    $('#msgs').replaceChildren(...warnings.map((w) => h('div', { class: 'warn' }, w)));
+  } catch (e) {
+    $('#msgs').replaceChildren(h('div', { class: 'bad' }, e.message === OFFLINE ? e.message : `Preview failed: ${e.message}`));
+  }
+}
+
+async function save(render) {
+  $('#save').disabled = $('#render').disabled = true;
+  setStatus(render ? 'Rendering and checking…' : 'Saving…');
+  try {
+    const r = await api(render ? '/api/render' : '/api/save', { content: deck });
+    dirty = false;
+    setStatus(render ? 'Saved and rendered' : 'Saved');
+    if (render) {
+      const dc = r.report?.designCheck;
+      /* The renderer's own checks (e.g. overflow) count too, so a green verdict needs both to pass */
+      const renderIssues = (r.report?.warnings || []).filter((w) => !/check by eye|da-design-check did not run/.test(w));
+      const verdict = !r.report ? h('div', { class: 'bad' }, 'Render failed, see the log.')
+        : dc?.status === 'must-fix' ? h('div', { class: 'bad' }, `da-design-check found ${dc.must} must-fix and ${dc.should} should-fix issue(s). Fix before using these images.`)
+        : !r.report.ok || renderIssues.length ? h('div', { class: 'bad' }, `Not ready: ${renderIssues.join(' · ') || 'the render reported a problem, see the log.'}`)
+        : dc?.status === 'passed' && dc.should ? h('div', { class: 'warn' }, `Passed with ${dc.should} should-fix suggestion(s), see the log.`)
+        : dc?.status === 'passed' ? h('div', { class: 'good' }, 'All checks passed. Still look at each slide before posting.')
+        : h('div', { class: 'warn' }, `da-design-check did not run: ${dc?.reason || 'unknown reason'}. This is not a pass.`);
+      $('#result').replaceChildren(verdict, h('pre', {}, r.log || ''), h('div', { class: 'thumbs' }, r.pngs.map((src) => h('a', { href: src, target: '_blank' }, h('img', { src, alt: '' })))));
+    }
+  } catch (e) {
+    setStatus('Not saved', 'dirty');
+    $('#result').replaceChildren(h('div', { class: 'bad' }, `Not saved: ${e.message}`));
+  } finally {
+    $('#save').disabled = $('#render').disabled = false;
+  }
+}
+
+$('#save').addEventListener('click', () => save(false));
+$('#render').addEventListener('click', () => save(true));
+
+(async () => {
+  let data;
+  try { data = await api('/api/deck'); } catch (e) { $('#msgs').replaceChildren(h('div', { class: 'bad' }, e.message)); return; }
+  deck = data.content; photos = data.photos; limits = data.limits;
+  $('#file').textContent = data.file;
+  $('#cards').replaceChildren(...deck.slides.map(card));
+  setStatus('Saved');
+  preview();
+})();
+</script>
+</body>
+</html>
