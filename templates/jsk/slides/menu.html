@@ -1,0 +1,18 @@
+{# 選單列表:每行一個情況,右邊產品縮圖與去向頁碼(如 Post2「先揀一件最煩的事」) #}
+<section class="jsk-frame jsk-s-{{ slideStyle }} jsk-menu jsk-deco-{{ n % 3 }}" data-type="menu">
+  {% include "slides/_chrome.html" %}
+  <div class="jsk-content" data-fit>
+    {% if slide.title %}<h2 class="jsk-heading">{{ slide.title | br }}</h2>{% endif %}
+    {% if slide.intro %}<p class="jsk-intro" data-shrink>{{ slide.intro | br }}</p>{% endif %}
+    <ol class="jsk-menu-rows">
+      {% for row in slide.rows %}
+      <li class="jsk-menu-row">
+        <span class="jsk-menu-text">{{ row.text }}</span>
+        {% if row.imageUrls.length %}<span class="jsk-menu-imgs">{% for u in row.imageUrls %}<img src="{{ u }}" alt="">{% endfor %}</span>{% endif %}
+        {% if row.page %}<span class="jsk-menu-page">{{ row.page }}</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+    {% if slide.note %}<p class="jsk-outro-note" data-shrink>{{ slide.note | br }}</p>{% endif %}
+  </div>
+</section>

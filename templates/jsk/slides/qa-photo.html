@@ -1,0 +1,10 @@
+{# 實拍問答頁(9:16 為主):相片滿版,上方米白問題卡,下方答案字幕。不用頁首條與頁碼 #}
+<section class="jsk-frame jsk-qa{% if slide.imageUrl %} has-photo{% endif %}" data-type="qa-photo">
+  {% if slide.imageUrl %}<img class="jsk-qa-photo" src="{{ slide.imageUrl }}" alt="">{% endif %}
+  {% set chipText = slide.chip if slide.chip is defined else series %}
+  <div class="jsk-qa-card" data-fit>
+    {% if chipText %}<span class="jsk-qa-chip">{{ chipText }}</span>{% endif %}
+    <p class="jsk-qa-q">{{ slide.question | br }}</p>
+  </div>
+  {% if slide.answer %}<div class="jsk-qa-answer"><span>{{ slide.answer | br }}</span></div>{% endif %}
+</section>

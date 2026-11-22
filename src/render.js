@@ -18,6 +18,7 @@ import nunjucks from 'nunjucks';
 import { readFileSync, mkdirSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
+import { renderJsk } from './jsk.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -257,6 +258,12 @@ async function main() {
     const inlineCss = buildTwitterCss();
     const html = renderTwitterTemplate(content, inlineCss);
     await renderTwitterToImage(html, { outputDir, imageFormat });
+    return;
+  }
+
+  const raw = JSON.parse(readFileSync(contentPath, 'utf-8'));
+  if (raw.brand === 'jsk') {
+    await renderJsk(raw, { contentPath, outputDir, imageFormat, noPdf });
     return;
   }
 
